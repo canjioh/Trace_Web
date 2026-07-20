@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="it" data-theme="paper">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TRACE — Tree-level Reaction Amplitude Computation Engine</title>
+<meta name="description" content="Tree-level QED Feynman diagrams computed in the browser: topologies, helicity amplitudes, cross sections.">
+<link rel="icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><circle cx='32' cy='32' r='32' fill='%23000'/><g stroke='%23fff' stroke-width='2.6' fill='none' stroke-linecap='round' stroke-linejoin='round'><path d='M11 19 H53'/><path d='M11 45 H53'/><path d='M32 19 L37 24 L27 30 L37 36 L27 42 L32 45'/></g><circle cx='32' cy='19' r='3.2' fill='%23fff'/><circle cx='32' cy='45' r='3.2' fill='%23fff'/></svg>">
+<link rel="stylesheet" href="assets/css/trace.css">
+<script>document.documentElement.dataset.theme = localStorage.getItem('trace-theme') || 'paper';</script>
+</head>
+<body class="page-home">
+
+<header class="masthead">
+  <div class="masthead-inner">
+    <div class="brand">
+      <h1 class="wordmark" data-mark="0">TRACE</h1>
+      <p class="expand">Tree-level Reaction Amplitude Computation Engine</p>
+    </div>
+    <div class="toggles">
+      <button id="langBtn" class="toggle" type="button">EN</button>
+      <button id="themeBtn" class="toggle" type="button">lavagna</button>
+    </div>
+  </div>
+  <nav class="nav">
+    <div class="nav-inner">
+      <a href="index.html" data-i18n="nav.home">Copertina</a>
+      <a href="theory.html" data-i18n="nav.theory">Teoria</a>
+      <a href="compute.html" data-i18n="nav.compute">Calcolo</a>
+    </div>
+  </nav>
+</header>
+
+<section class="hero">
+  <div id="hero" class="hero-strip"></div>
+  <p class="hero-caption" data-i18n="hero.caption"></p>
+</section>
+
+<div class="lede">
+  <p class="lede-1" data-i18n="tagline"></p>
+  <p class="lede-2" data-i18n="subtagline"></p>
+</div>
+
+<main>
+
+  <section class="block">
+    <div class="doors">
+      <a class="door" href="theory.html">
+        <span class="door-num">01</span>
+        <h2 data-i18n="home.doorTheoryT"></h2>
+        <p data-i18n="home.doorTheoryD"></p>
+        <span class="door-go" data-i18n="home.enter"></span>
+      </a>
+      <a class="door" href="compute.html">
+        <span class="door-num">02</span>
+        <h2 data-i18n="home.doorComputeT"></h2>
+        <p data-i18n="home.doorComputeD"></p>
+        <span class="door-go" data-i18n="home.enter"></span>
+      </a>
+    </div>
+  </section>
+
+  <section class="block">
+    <h2 data-i18n="sec.what"></h2>
+    <p class="lead" data-i18n-html="what.lead"></p>
+    <div class="triptych">
+      <article>
+        <h3 data-i18n="what.p1.title"></h3>
+        <p data-i18n="what.p1"></p>
+      </article>
+      <article>
+        <h3 data-i18n="what.p2.title"></h3>
+        <p data-i18n="what.p2"></p>
+      </article>
+      <article>
+        <h3 data-i18n="what.p3.title"></h3>
+        <p data-i18n="what.p3"></p>
+      </article>
+    </div>
+  </section>
+
+  <section class="block" id="colophon">
+    <h2 data-i18n="sec.colophon"></h2>
+    <p class="lead" data-i18n-html="col.lead"></p>
+    <dl class="colophon">
+      <dt data-i18n="col.purposeT"></dt><dd data-i18n-html="col.purposeB"></dd>
+      <dt data-i18n="col.honestT"></dt><dd data-i18n-html="col.honestB"></dd>
+      <dt data-i18n="col.madeT"></dt><dd data-i18n-html="col.madeB"></dd>
+      <dt data-i18n="col.typeT"></dt><dd data-i18n-html="col.typeB"></dd>
+      <dt data-i18n="col.convT"></dt><dd data-i18n-html="col.convB"></dd>
+      <dt data-i18n="col.licT"></dt><dd data-i18n-html="col.licB"></dd>
+    </dl>
+  </section>
+
+</main>
+
+<footer>
+  <span class="fmark">TRACE</span>
+  <span>MIT</span>
+</footer>
+
+<script src="assets/js/i18n.js"></script>
+<script src="assets/js/tex.js"></script>
+<script src="assets/js/complex.js"></script>
+<script src="assets/js/dirac.js"></script>
+<script src="assets/js/model.js"></script>
+<script src="assets/js/topology.js"></script>
+<script src="assets/js/alpha.js"></script>
+<script src="assets/js/amplitude.js"></script>
+<script src="assets/js/render.js"></script>
+<script src="assets/js/hero.js"></script>
+<script src="assets/js/shell.js"></script>
+<script>
+  PAGE.onTheme = () => initHero(document.getElementById('hero'));
+  document.addEventListener('DOMContentLoaded', () => {
+    bootShell();
+    initHero(document.getElementById('hero'));
+    let rt;
+    window.addEventListener('resize', () => {
+      clearTimeout(rt);
+      rt = setTimeout(() => initHero(document.getElementById('hero')), 150);
+    });
+  });
+</script>
+</body>
+</html>

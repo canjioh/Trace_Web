@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="it" data-theme="paper">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TRACE — Calcolo</title>
+<meta name="description" content="Type a QED reaction and get its tree-level diagrams, amplitudes, per-diagram contributions, interference and cross section.">
+<link rel="icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><circle cx='32' cy='32' r='32' fill='%23000'/><g stroke='%23fff' stroke-width='2.6' fill='none' stroke-linecap='round' stroke-linejoin='round'><path d='M11 19 H53'/><path d='M11 45 H53'/><path d='M32 19 L37 24 L27 30 L37 36 L27 42 L32 45'/></g><circle cx='32' cy='19' r='3.2' fill='%23fff'/><circle cx='32' cy='45' r='3.2' fill='%23fff'/></svg>">
+<link rel="stylesheet" href="assets/css/trace.css">
+<script>document.documentElement.dataset.theme = localStorage.getItem('trace-theme') || 'paper';</script>
+</head>
+<body class="page-compute">
+
+<header class="masthead">
+  <div class="masthead-inner">
+    <div class="brand">
+      <h1 class="wordmark" data-mark="3"><a href="index.html">TRACE</a></h1>
+      <p class="expand">Tree-level Reaction Amplitude Computation Engine</p>
+    </div>
+    <div class="toggles">
+      <button id="langBtn" class="toggle" type="button">EN</button>
+      <button id="themeBtn" class="toggle" type="button">lavagna</button>
+    </div>
+  </div>
+  <nav class="nav">
+    <div class="nav-inner">
+      <a href="index.html" data-i18n="nav.home">Copertina</a>
+      <a href="theory.html" data-i18n="nav.theory">Teoria</a>
+      <a href="compute.html" data-i18n="nav.compute">Calcolo</a>
+    </div>
+  </nav>
+</header>
+
+<main>
+
+  <section class="block">
+    <h2 data-i18n="sec.calc"></h2>
+
+    <div class="controls">
+      <div class="ctrl">
+        <label for="reaction" data-i18n="ctrl.preset"></label>
+        <select id="reaction"></select>
+      </div>
+      <div class="ctrl wide">
+        <label for="customInput" data-i18n="ctrl.custom"></label>
+        <div class="inline">
+          <input id="customInput" type="text" spellcheck="false" autocomplete="off" placeholder="e- e+ > mu- mu+">
+          <button id="customGo" class="btn" type="button" data-i18n="ctrl.go"></button>
+        </div>
+      </div>
+    </div>
+    <p class="help" data-i18n-html="ctrl.customHelp"></p>
+    <p id="customError" class="error"></p>
+
+    <div class="controls">
+      <div class="ctrl wide">
+        <label for="sqrtSslider"><span data-i18n="ctrl.sqrtS"></span> — <span id="sqrtSecho" class="echo"></span></label>
+        <div class="inline">
+          <input id="sqrtS" type="number" step="any" min="0.001">
+          <input id="sqrtSslider" class="slider" type="range" min="-0.7" max="3.7" step="0.001">
+        </div>
+      </div>
+      <div class="ctrl wide">
+        <label for="cosSlider"><span data-i18n="ctrl.cos"></span> — <span id="cosEcho" class="echo"></span></label>
+        <input id="cosSlider" class="slider" type="range" min="-0.98" max="0.98" step="0.005">
+      </div>
+    </div>
+    <p class="help" data-i18n="ctrl.hint"></p>
+  </section>
+
+  <section class="block">
+    <h2>
+      <span data-i18n="sec.diagrams"></span>
+      <span class="rule-count"><b id="reactionName"></b> · <span id="ndiag">–</span> <span data-i18n="diag.order"></span></span>
+    </h2>
+    <p id="note" class="lead"></p>
+    <div id="diagrams" class="diagram-grid"></div>
+    <p class="help" data-i18n="diag.note"></p>
+  </section>
+
+  <section class="block">
+    <h2 data-i18n="sec.results"></h2>
+    <div id="results"></div>
+  </section>
+
+  <section class="block" id="plotwrap">
+    <h2 data-i18n="sec.plot"></h2>
+    <div class="plot-slot"><canvas id="plot"></canvas></div>
+    <div id="legend" class="legend"></div>
+  </section>
+
+  <section class="block">
+    <h2 data-i18n="sec.orders"></h2>
+    <p class="lead" data-i18n-html="orders.lead"></p>
+    <div class="callout">
+      <h4 data-i18n="orders.scopeTitle"></h4>
+      <p class="tex-host" data-i18n-html="orders.scopeBody"></p>
+    </div>
+    <label class="switch">
+      <input id="runAlpha" type="checkbox">
+      <span data-i18n="orders.toggle"></span>
+    </label>
+    <div id="orders"></div>
+    <div class="callout">
+      <h4 data-i18n="orders.whyNot"></h4>
+      <p data-i18n="orders.whyNotBody"></p>
+    </div>
+  </section>
+
+  <section class="block">
+    <h2 data-i18n="sec.validation"></h2>
+    <p class="lead" data-i18n="val.lead"></p>
+    <button id="runval" class="btn" type="button" data-i18n="val.run"></button>
+    <div id="validation"></div>
+  </section>
+
+  <section class="block">
+    <h2 data-i18n="sec.about"></h2>
+    <p class="lead" data-i18n="about.text"></p>
+  </section>
+
+</main>
+
+<footer>
+  <span class="fmark">TRACE</span>
+  <span>MIT</span>
+</footer>
+
+<script src="assets/js/i18n.js"></script>
+<script src="assets/js/tex.js"></script>
+<script src="assets/js/complex.js"></script>
+<script src="assets/js/dirac.js"></script>
+<script src="assets/js/model.js"></script>
+<script src="assets/js/parse.js"></script>
+<script src="assets/js/kinematics.js"></script>
+<script src="assets/js/topology.js"></script>
+<script src="assets/js/alpha.js"></script>
+<script src="assets/js/gminus2.js"></script>
+<script src="assets/js/amplitude.js"></script>
+<script src="assets/js/render.js"></script>
+<script src="assets/js/plot.js"></script>
+<script src="assets/js/validate.js"></script>
+<script src="assets/js/shell.js"></script>
+<script src="assets/js/app.js"></script>
+</body>
+</html>

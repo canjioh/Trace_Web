@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="it" data-theme="paper">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TRACE — Teoria</title>
+<meta name="description" content="What a Feynman diagram represents, what it computes, and how a drawing becomes a measurable cross section.">
+<link rel="icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><circle cx='32' cy='32' r='32' fill='%23000'/><g stroke='%23fff' stroke-width='2.6' fill='none' stroke-linecap='round' stroke-linejoin='round'><path d='M11 19 H53'/><path d='M11 45 H53'/><path d='M32 19 L37 24 L27 30 L37 36 L27 42 L32 45'/></g><circle cx='32' cy='19' r='3.2' fill='%23fff'/><circle cx='32' cy='45' r='3.2' fill='%23fff'/></svg>">
+<link rel="stylesheet" href="assets/css/trace.css">
+<script>document.documentElement.dataset.theme = localStorage.getItem('trace-theme') || 'paper';</script>
+</head>
+<body class="page-theory">
+
+<header class="masthead">
+  <div class="masthead-inner">
+    <div class="brand">
+      <h1 class="wordmark" data-mark="1"><a href="index.html">TRACE</a></h1>
+      <p class="expand">Tree-level Reaction Amplitude Computation Engine</p>
+    </div>
+    <div class="toggles">
+      <button id="langBtn" class="toggle" type="button">EN</button>
+      <button id="themeBtn" class="toggle" type="button">lavagna</button>
+    </div>
+  </div>
+  <nav class="nav">
+    <div class="nav-inner">
+      <a href="index.html" data-i18n="nav.home">Copertina</a>
+      <a href="theory.html" data-i18n="nav.theory">Teoria</a>
+      <a href="compute.html" data-i18n="nav.compute">Calcolo</a>
+    </div>
+  </nav>
+</header>
+
+<main>
+
+  <section class="block">
+    <h2 data-i18n="sec.theory"></h2>
+    <p class="lead" data-i18n="theory.lead"></p>
+    <div id="theory"></div>
+  </section>
+
+</main>
+
+<footer>
+  <span class="fmark">TRACE</span>
+  <span>MIT</span>
+</footer>
+
+<script src="assets/js/i18n.js"></script>
+<script src="assets/js/tex.js"></script>
+<script src="assets/js/theory.js"></script>
+<script src="assets/js/shell.js"></script>
+<script>
+  PAGE.onLang = () => renderTheory(document.getElementById('theory'));
+  document.addEventListener('DOMContentLoaded', bootShell);
+</script>
+</body>
+</html>
