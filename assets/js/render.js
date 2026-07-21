@@ -46,10 +46,20 @@ function setupCanvas(canvas, w, h) {
   return ctx;
 }
 
+/* Stroke weights, gathered so the whole drawing can be made lighter in one
+   place. Loop corrections are drawn a shade lighter than the tree they sit on,
+   which keeps a busy one-loop figure readable. */
+const STROKE = {
+  line: 1.1,
+  loop: 0.95,
+  vertexR: 2.8,
+  arrow: 6.4,
+};
+
 /* Straight line with a fermion-flow arrowhead at its midpoint. */
-function drawFermion(ctx, a, b, forward) {
+function drawFermion(ctx, a, b, forward, width = STROKE.line) {
   ctx.strokeStyle = COL.ink;
-  ctx.lineWidth = 1.5;
+  ctx.lineWidth = width;
   ctx.beginPath();
   ctx.moveTo(a.x, a.y);
   ctx.lineTo(b.x, b.y);
@@ -60,46 +70,91 @@ function drawFermion(ctx, a, b, forward) {
   const len = Math.hypot(dx, dy) || 1;
   dx /= len; dy /= len;
   if (!forward) { dx = -dx; dy = -dy; }
-  const s = 7;
+  drawArrowhead(ctx, mx, my, dx, dy, STROKE.arrow);
+}
+
+function drawArrowhead(ctx, x, y, dx, dy, s) {
+  const nx = -dy, ny = dx;
   ctx.fillStyle = COL.ink;
   ctx.beginPath();
-  ctx.moveTo(mx + dx * s, my + dy * s);
-  ctx.lineTo(mx - dx * s * 0.55 - dy * s * 0.5, my - dy * s * 0.55 + dx * s * 0.5);
-  ctx.lineTo(mx - dx * s * 0.55 + dy * s * 0.5, my - dy * s * 0.55 - dx * s * 0.5);
+  ctx.moveTo(x + dx * s, y + dy * s);
+  ctx.lineTo(x - dx * s * 0.5 + nx * s * 0.48, y - dy * s * 0.5 + ny * s * 0.48);
+  ctx.lineTo(x - dx * s * 0.5 - nx * s * 0.48, y - dy * s * 0.5 - ny * s * 0.48);
   ctx.closePath();
   ctx.fill();
 }
 
-/* Sine wave along the segment, for a photon. `phase` lets the hero animate it. */
-function drawPhoton(ctx, a, b, phase = 0) {
+/* A photon: a sinusoid riding on a quadratic Bézier from a to b.
+
+   Two things make this precise rather than approximate. The wave is placed by
+   ARC LENGTH along the curve rather than by the Bézier parameter, so the
+   wavelength stays uniform instead of stretching where the curve is fast; and
+   it is offset along the curve's TRUE NORMAL rather than the chord's, which on
+   a bulged arc are not the same direction. Doing both on the chord is what made
+   the loop corrections look uneven near their ends.
+
+   The number of half-wavelengths is rounded to a whole number, so the wave
+   meets both endpoints exactly at zero with no taper needed. */
+function drawPhotonCurve(ctx, a, b, opts = {}) {
+  const bulge = opts.bulge || 0;
+  const phase = opts.phase || 0;
+  const amp = opts.amp || 4.6;
+  const targetWL = opts.wavelength || 11;
+  const width = opts.width || STROKE.line;
+
   const dx = b.x - a.x, dy = b.y - a.y;
-  const len = Math.hypot(dx, dy) || 1;
-  const ux = dx / len, uy = dy / len;
-  const nx = -uy, ny = ux;
-  const amp = 5.5;
-  const wl = 13;
-  const n = Math.max(2, Math.round(len / wl));
+  const chord = Math.hypot(dx, dy) || 1;
+  const nx0 = -dy / chord, ny0 = dx / chord;
+  // Control point: the midpoint pushed along the chord normal. The factor of
+  // two makes the curve pass through `bulge` at its apex.
+  const cx = (a.x + b.x) / 2 + nx0 * bulge * 2;
+  const cy = (a.y + b.y) / 2 + ny0 * bulge * 2;
+
+  const N = Math.max(120, Math.round(chord * 2.4));
+  const pts = [];
+  let total = 0;
+  for (let i = 0; i <= N; i++) {
+    const t = i / N, mt = 1 - t;
+    const x = mt * mt * a.x + 2 * mt * t * cx + t * t * b.x;
+    const y = mt * mt * a.y + 2 * mt * t * cy + t * t * b.y;
+    const tx = 2 * mt * (cx - a.x) + 2 * t * (b.x - cx);
+    const ty = 2 * mt * (cy - a.y) + 2 * t * (b.y - cy);
+    const tl = Math.hypot(tx, ty) || 1;
+    if (i > 0) total += Math.hypot(x - pts[i - 1].x, y - pts[i - 1].y);
+    pts.push({ x, y, nx: -ty / tl, ny: tx / tl, s: total });
+  }
+
+  if (total < 1e-6) return; // degenerate: the two ends coincide
+  const halfWaves = Math.max(3, Math.round(total / (targetWL / 2)));
 
   ctx.strokeStyle = COL.ink;
-  ctx.lineWidth = 1.5;
+  ctx.lineWidth = width;
+  ctx.lineJoin = 'round';
+  ctx.lineCap = 'round';
   ctx.beginPath();
-  const steps = n * 14;
-  for (let i = 0; i <= steps; i++) {
-    const f = i / steps;
-    // Taper the ends to zero so the wave meets the vertices cleanly.
-    const env = Math.sin(Math.PI * Math.min(1, Math.max(0, f))) ** 0.35;
-    const off = Math.sin(f * n * 2 * Math.PI - phase) * amp * env;
-    const x = a.x + ux * len * f + nx * off;
-    const y = a.y + uy * len * f + ny * off;
-    if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+  for (const p of pts) {
+    const f = p.s / total;
+    // Only the animated hero needs a taper: a travelling wave does not sit at
+    // zero on the endpoints, whereas a static one already does.
+    const env = phase ? Math.sin(Math.PI * f) ** 0.3 : 1;
+    const off = Math.sin(f * halfWaves * Math.PI - phase) * amp * env;
+    const x = p.x + p.nx * off, y = p.y + p.ny * off;
+    if (p.s === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
   }
   ctx.stroke();
+  ctx.lineCap = 'butt';
+  ctx.lineJoin = 'miter';
+}
+
+/* Straight photon — the common case. */
+function drawPhoton(ctx, a, b, phase = 0) {
+  drawPhotonCurve(ctx, a, b, { phase, amp: 4.8, wavelength: 12 });
 }
 
 function drawVertex(ctx, p) {
   ctx.fillStyle = COL.ink;
   ctx.beginPath();
-  ctx.arc(p.x, p.y, 3.4, 0, 2 * Math.PI);
+  ctx.arc(p.x, p.y, STROKE.vertexR, 0, 2 * Math.PI);
   ctx.fill();
 }
 
@@ -273,30 +328,15 @@ function renderDiagram(canvas, diagram, opts = {}) {
 
 /* --- one-loop corrections: drawn, never evaluated --- */
 
-/* Photon arc bulging away from the straight chord between two points. */
+/* Photon carrying a one-loop correction: same curve machinery, drawn lighter
+   and with a shorter wavelength so it reads as subordinate to the tree. */
 function drawPhotonArc(ctx, p1, p2, bulge) {
-  const dx = p2.x - p1.x, dy = p2.y - p1.y;
-  const len = Math.hypot(dx, dy) || 1;
-  const nx = -dy / len, ny = dx / len;
-  const amp = 4.2;
-  const wl = 11;
-  const n = Math.max(2, Math.round(len / wl));
-
-  ctx.strokeStyle = COL.ink;
-  ctx.lineWidth = 1.3;
-  ctx.beginPath();
-  const steps = n * 14;
-  for (let i = 0; i <= steps; i++) {
-    const f = i / steps;
-    // Quadratic arc, with the wiggle superimposed along its normal.
-    const arc = 4 * bulge * f * (1 - f);
-    const env = Math.sin(Math.PI * f) ** 0.4;
-    const off = arc + Math.sin(f * n * 2 * Math.PI) * amp * env;
-    const x = p1.x + dx * f + nx * off;
-    const y = p1.y + dy * f + ny * off;
-    if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
-  }
-  ctx.stroke();
+  drawPhotonCurve(ctx, p1, p2, {
+    bulge,
+    amp: 3.6,
+    wavelength: 9,
+    width: STROKE.loop,
+  });
 }
 
 /* Closed fermion loop, drawn as a circle with fermion-number arrowheads at the
@@ -309,7 +349,7 @@ function drawFermionLoop(ctx, centre, along, radius) {
   const nx = -uy, ny = ux;
 
   ctx.strokeStyle = COL.ink;
-  ctx.lineWidth = 1.5;
+  ctx.lineWidth = STROKE.loop;
   ctx.beginPath();
   ctx.arc(centre.x, centre.y, radius, 0, 2 * Math.PI);
   ctx.stroke();
