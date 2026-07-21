@@ -235,6 +235,55 @@ function texBlock(src) {
   return `<span class="tx tx-display">${texParse(texTokenize(String(src)), { i: 0 })}</span>`;
 }
 
+/* Split a source string at its top-level relation symbol, ignoring anything
+   nested inside braces (so the "=" in \frac{a=b}{c} is not a split point).
+   Returns [lhs, rel, rhs] or null when there is no relation to align on. */
+function splitAtRelation(src) {
+  let depth = 0;
+  for (let i = 0; i < src.length; i++) {
+    const c = src[i];
+    if (c === '\\') { i++; continue; }        // skip escaped command names
+    if (c === '{') depth++;
+    else if (c === '}') depth--;
+    else if (depth === 0) {
+      if (c === '=') return [src.slice(0, i), '=', src.slice(i + 1)];
+      /* \to, \approx, \equiv and friends also serve as alignment points. */
+      const m = /^\\(to|approx|simeq|equiv|neq|leq|geq|Rightarrow|rightarrow)\b/.exec(src.slice(i));
+      if (m) return [src.slice(0, i), '\\' + m[1], src.slice(i + m[0].length)];
+    }
+  }
+  return null;
+}
+
+/* Multi-line display with the relation symbols aligned in a column, the way
+   LaTeX's align environment does it. Lines are separated by "\\".
+
+   This is the whole reason for having a typesetter rather than centring each
+   equation independently: a group of related equations reads as a group only
+   when the equals signs line up. */
+function texAlign(src) {
+  const lines = String(src).split(/\\\\/).map((l) => l.trim()).filter(Boolean);
+  const rows = lines
+    .map((line) => {
+      const parts = splitAtRelation(line);
+      if (!parts) {
+        return `<span class="tx-al-full">${texBlockInner(line)}</span>`;
+      }
+      const [lhs, rel, rhs] = parts;
+      return (
+        `<span class="tx-al-lhs">${texBlockInner(lhs)}</span>` +
+        `<span class="tx-al-rel">${texBlockInner(rel)}</span>` +
+        `<span class="tx-al-rhs">${texBlockInner(rhs)}</span>`
+      );
+    })
+    .join('');
+  return `<span class="tx tx-align">${rows}</span>`;
+}
+
+function texBlockInner(src) {
+  return texParse(texTokenize(String(src)), { i: 0 });
+}
+
 /* Walk the DOM and typeset anything marked up for it:
      <span data-tex="\gamma^\mu"></span>
      <div data-tex-block="..."></div>
@@ -242,6 +291,7 @@ function texBlock(src) {
 function typesetAll(root = document) {
   root.querySelectorAll('[data-tex]').forEach((el) => { el.innerHTML = tex(el.dataset.tex); });
   root.querySelectorAll('[data-tex-block]').forEach((el) => { el.innerHTML = texBlock(el.dataset.texBlock); });
+  root.querySelectorAll('[data-tex-align]').forEach((el) => { el.innerHTML = texAlign(el.dataset.texAlign); });
   root.querySelectorAll('.tex-scan').forEach((el) => {
     if (el.dataset.texDone) return;
     el.innerHTML = el.innerHTML.replace(/\$([^$]+)\$/g, (_, m) => tex(m));

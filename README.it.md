@@ -131,6 +131,25 @@ misura di α si usa in ingresso, e le determinazioni con cesio e rubidio non
 concordano esattamente a quel livello. È una tensione aperta nel campo, e la
 tabella lo dice invece di arrotondarla via.
 
+### Topologie a un loop: disegnate, non valutate
+
+Il calcolatore enumera e disegna anche le correzioni a un loop del processo
+selezionato. Il conteggio segue Griffiths, *Introduction to Elementary
+Particles*, §6.6: l'ordine successivo si ottiene aggiungendo una linea interna
+che collega due qualsiasi delle linee del grafo ad albero, compresa una linea
+con sé stessa. Un grafo 2 → 2 ad albero ha cinque linee, quindi ci sono
+`C(5,2) + 5 = 15` modi per diagramma; in QED sopravvivono solo quelli i cui
+estremi ammettono un vertice fermione-antifermione-fotone, il che per
+`e⁻e⁺ → μ⁻μ⁺` ne lascia 11, ordinati nelle famiglie auto-energia,
+polarizzazione del vuoto, vertice e box.
+
+Sono **disegnati ma mai valutati**, e l'interfaccia lo dichiara su ogni
+famiglia. Preso singolarmente un diagramma a un loop è divergente — l'integrale
+sul loop va come `∫d⁴q/q⁴`, logaritmicamente — e dipende dalla gauge, quindi un
+numero accanto sarebbe privo di significato. Solo la polarizzazione del vuoto è
+separatamente finita e gauge-invariante, ed è per questo l'unica famiglia che la
+pagina sappia davvero calcolare.
+
 Le altre correzioni a un loop sono deliberatamente assenti. La polarizzazione del
 vuoto è trattabile perché una catena di bolle si risomma in un fattore
 moltiplicativo sul propagatore. Le correzioni di vertice e i box no: richiedono
@@ -199,6 +218,7 @@ assets/js/
   parse.js        parsing delle reazioni scritte dall'utente
   kinematics.js   cinematica 2->2 nel CM, sezioni d'urto, quadratura
   topology.js     enumerazione dei diagrammi
+  loops.js        enumerazione delle topologie a un loop (Griffiths §6.6)
   alpha.js        polarizzazione del vuoto a un loop, coupling running
   amplitude.js    regole di Feynman, segni fermionici, somma sulle eliche
   render.js       disegno dei diagrammi

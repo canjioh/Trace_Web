@@ -66,6 +66,23 @@
       </div>
     </div>
     <p class="help" data-i18n="ctrl.hint"></p>
+
+    <!-- The accuracy switch belongs with the inputs, not buried below the
+         results: it changes every number on the page. -->
+    <div class="ctrl order-ctrl">
+      <label data-i18n="ctrl.order"></label>
+      <div class="segmented">
+        <label class="seg">
+          <input type="radio" name="order" value="tree" checked>
+          <span data-i18n="ctrl.orderTree"></span>
+        </label>
+        <label class="seg">
+          <input type="radio" name="order" value="vp">
+          <span data-i18n="ctrl.orderVP"></span>
+        </label>
+      </div>
+    </div>
+    <p class="help" data-i18n-html="ctrl.orderHelp"></p>
   </section>
 
   <section class="block">
@@ -90,16 +107,21 @@
   </section>
 
   <section class="block">
+    <h2>
+      <span data-i18n="sec.loops"></span>
+      <span class="rule-count" id="loopCount"></span>
+    </h2>
+    <p class="lead" data-i18n="loops.lead"></p>
+    <div id="loops"></div>
+  </section>
+
+  <section class="block">
     <h2 data-i18n="sec.orders"></h2>
     <p class="lead" data-i18n-html="orders.lead"></p>
     <div class="callout">
       <h4 data-i18n="orders.scopeTitle"></h4>
-      <p class="tex-host" data-i18n-html="orders.scopeBody"></p>
+      <p data-i18n-html="orders.scopeBody"></p>
     </div>
-    <label class="switch">
-      <input id="runAlpha" type="checkbox">
-      <span data-i18n="orders.toggle"></span>
-    </label>
     <div id="orders"></div>
     <div class="callout">
       <h4 data-i18n="orders.whyNot"></h4>
@@ -137,6 +159,7 @@
 <script src="assets/js/alpha.js"></script>
 <script src="assets/js/gminus2.js"></script>
 <script src="assets/js/amplitude.js"></script>
+<script src="assets/js/loops.js"></script>
 <script src="assets/js/render.js"></script>
 <script src="assets/js/plot.js"></script>
 <script src="assets/js/validate.js"></script>

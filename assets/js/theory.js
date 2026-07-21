@@ -46,11 +46,11 @@ utile tenerli distinti perché è dove si annidano gli equivoci.</p>
 <span data-tex="\\mathcal{M}"></span>. Se un processo ha più diagrammi, le loro
 ampiezze <b>si sommano</b> prima di essere elevate al quadrato — non si sommano
 le probabilità. Questa è meccanica quantistica, non contabilità:</p>
-<div class="formula-block"><span data-tex-block="\\mathcal{M} = \\mathcal{M}_1 + \\mathcal{M}_2 + \\ldots"></span></div>
+<div class="formula-block"><span data-tex-align="\\mathcal{M} = \\mathcal{M}_1 + \\mathcal{M}_2 + \\ldots"></span></div>
 <p><b>Secondo anello: la probabilità.</b> Si prende il modulo quadro. E qui
 compare il termine che rende la faccenda interessante:</p>
 <div class="formula-block">
-  <span data-tex-block="|\\mathcal{M}_1 + \\mathcal{M}_2|^2 = |\\mathcal{M}_1|^2 + |\\mathcal{M}_2|^2 + 2\\,\\text{Re}(\\mathcal{M}_1 \\mathcal{M}_2^*)"></span>
+  <span data-tex-align="|\\mathcal{M}_1 + \\mathcal{M}_2|^2 = |\\mathcal{M}_1|^2 + |\\mathcal{M}_2|^2 + 2\\,\\text{Re}(\\mathcal{M}_1 \\mathcal{M}_2^*)"></span>
   <span class="formula-note">l'ultimo termine è l'interferenza</span>
 </div>
 <p>L'interferenza può essere positiva o negativa, e non è un dettaglio: nello
@@ -108,12 +108,12 @@ agisce sullo spinore alla sua destra.</p>
 due linee fermioniche separate, unite dal propagatore del fotone che ne contrae
 gli indici di Lorentz:</p>
 <div class="formula-block">
-  <span data-tex-block="\\mathcal{M} = [\\bar{v}(p_2)\\, iQ_e e \\gamma^\\mu\\, u(p_1)] \\; \\frac{-i g_{\\mu\\nu}}{s} \\; [\\bar{u}(p_3)\\, iQ_\\mu e \\gamma^\\nu\\, v(p_4)]"></span>
+  <span data-tex-align="\\mathcal{M} = [\\bar{v}(p_2)\\, iQ_e e \\gamma^\\mu\\, u(p_1)] \\; \\frac{-i g_{\\mu\\nu}}{s} \\; [\\bar{u}(p_3)\\, iQ_\\mu e \\gamma^\\nu\\, v(p_4)]"></span>
 </div>
 <p>Nel Compton, invece, la linea fermionica è una sola e attraversa entrambi i
 vertici, con il propagatore del fermione in mezzo:</p>
 <div class="formula-block">
-  <span data-tex-block="\\mathcal{M} = \\bar{u}(p_3)\\, iQe\\slashed{\\epsilon}^*\\; \\frac{i(\\slashed{q}+m)}{q^2-m^2} \\; iQe\\slashed{\\epsilon}\\, u(p_1)"></span>
+  <span data-tex-align="\\mathcal{M} = \\bar{u}(p_3)\\, iQe\\slashed{\\epsilon}^*\\; \\frac{i(\\slashed{q}+m)}{q^2-m^2} \\; iQe\\slashed{\\epsilon}\\, u(p_1)"></span>
 </div>
 <p>La differenza fra i due casi non è una convenzione di scrittura: dipende da
 che cosa corre nella linea interna, e viene determinata dal modello nel momento
@@ -150,7 +150,7 @@ conta, come dev'essere.</p>`,
 misura quello finale. Si somma quindi su tutte le eliche finali e si <i>media</i>
 su quelle iniziali:</p>
 <div class="formula-block">
-  <span data-tex-block="\\langle|\\mathcal{M}|^2\\rangle = \\frac{1}{N}\\sum_{\\text{eliche}} |\\mathcal{M}|^2"></span>
+  <span data-tex-align="\\langle|\\mathcal{M}|^2\\rangle = \\frac{1}{N}\\sum_{\\text{eliche}} |\\mathcal{M}|^2"></span>
   <span class="formula-note">N = 4 per due particelle iniziali con due stati ciascuna</span>
 </div>
 <p>Il metodo tradizionale usa a questo punto le relazioni di completezza
@@ -177,8 +177,7 @@ Ward si ferma a 10⁻⁸ invece di 10⁻¹⁴.</p>`,
 <span data-tex="1 + 2 \\to 3 + 4"></span> sono tre combinazioni degli impulsi che
 non dipendono dal sistema di riferimento:</p>
 <div class="formula-block">
-  <span data-tex-block="s = (p_1+p_2)^2, \\quad t = (p_1-p_3)^2, \\quad u = (p_1-p_4)^2"></span>
-  <span data-tex-block="s + t + u = \\sum_i m_i^2"></span>
+  <span data-tex-align="s = (p_1+p_2)^2, \\quad t = (p_1-p_3)^2, \\quad u = (p_1-p_4)^2 \\\\ s + t + u = \\sum_i m_i^2"></span>
 </div>
 <p>Quella somma è un controllo gratuito sulla cinematica, ed è mostrata nei
 risultati proprio per questo. Nel centro di massa
@@ -186,7 +185,7 @@ risultati proprio per questo. Nel centro di massa
 canali viene da quale dei tre invarianti compare nel denominatore del
 propagatore.</p>
 <div class="formula-block">
-  <span data-tex-block="\\frac{d\\sigma}{d\\Omega} = \\frac{\\langle|\\mathcal{M}|^2\\rangle}{64\\pi^2 s} \\cdot \\frac{|p_f|}{|p_i|}"></span>
+  <span data-tex-align="\\frac{d\\sigma}{d\\Omega} = \\frac{\\langle|\\mathcal{M}|^2\\rangle}{64\\pi^2 s} \\cdot \\frac{|p_f|}{|p_i|}"></span>
 </div>
 <p>Il risultato è in <span data-tex="\\text{GeV}^{-2}"></span>; la conversione in
 picobarn usa <span data-tex="1\\,\\text{GeV}^{-2} = 3.894 \\times 10^8\\,\\text{pb}"></span>.
@@ -218,7 +217,7 @@ temporaneamente in una coppia particella-antiparticella. Questa correzione è
 speciale perché è una catena di bolle che si risomma geometricamente in un
 fattore moltiplicativo sul propagatore:</p>
 <div class="formula-block">
-  <span data-tex-block="\\alpha(q^2) = \\frac{\\alpha}{1 - \\Delta\\alpha(q^2)}"></span>
+  <span data-tex-align="\\alpha(q^2) = \\frac{\\alpha}{1 - \\Delta\\alpha(q^2)}"></span>
   <span class="formula-note">un loop, risommato a tutti gli ordini</span>
 </div>
 <p>Il risultato è che la carica elettrica <i>dipende dall'energia</i>: sonda più
@@ -278,7 +277,7 @@ di gauge e si verifica da sola.</p>
 <p>Sostituendo la polarizzazione di un fotone esterno con il suo stesso
 quadrimpulso, l'ampiezza <b>sommata</b> deve annullarsi:</p>
 <div class="formula-block">
-  <span data-tex-block="\\epsilon^\\mu \\to k^\\mu \\;\\Rightarrow\\; \\sum_i \\mathcal{M}_i = 0"></span>
+  <span data-tex-align="\\epsilon^\\mu \\to k^\\mu \\;\\Rightarrow\\; \\sum_i \\mathcal{M}_i = 0"></span>
 </div>
 <p>I singoli diagrammi non si annullano affatto: si cancellano fra loro. È
 esattamente per questo che il test è severo — fallisce se il segno relativo è
@@ -328,11 +327,11 @@ keeping them distinct because that is where the confusions live.</p>
 <span data-tex="\\mathcal{M}"></span>. If a process has several diagrams, their
 amplitudes <b>add</b> before being squared — probabilities do not add. This is
 quantum mechanics, not bookkeeping:</p>
-<div class="formula-block"><span data-tex-block="\\mathcal{M} = \\mathcal{M}_1 + \\mathcal{M}_2 + \\ldots"></span></div>
+<div class="formula-block"><span data-tex-align="\\mathcal{M} = \\mathcal{M}_1 + \\mathcal{M}_2 + \\ldots"></span></div>
 <p><b>Second link: the probability.</b> Take the modulus squared. And here is the
 term that makes the whole business interesting:</p>
 <div class="formula-block">
-  <span data-tex-block="|\\mathcal{M}_1 + \\mathcal{M}_2|^2 = |\\mathcal{M}_1|^2 + |\\mathcal{M}_2|^2 + 2\\,\\text{Re}(\\mathcal{M}_1 \\mathcal{M}_2^*)"></span>
+  <span data-tex-align="|\\mathcal{M}_1 + \\mathcal{M}_2|^2 = |\\mathcal{M}_1|^2 + |\\mathcal{M}_2|^2 + 2\\,\\text{Re}(\\mathcal{M}_1 \\mathcal{M}_2^*)"></span>
   <span class="formula-note">the last term is interference</span>
 </div>
 <p>Interference can be positive or negative, and it is no detail: in Bhabha
@@ -389,12 +388,12 @@ right.</p>
 are two separate fermion lines, joined by the photon propagator which contracts
 their Lorentz indices:</p>
 <div class="formula-block">
-  <span data-tex-block="\\mathcal{M} = [\\bar{v}(p_2)\\, iQ_e e \\gamma^\\mu\\, u(p_1)] \\; \\frac{-i g_{\\mu\\nu}}{s} \\; [\\bar{u}(p_3)\\, iQ_\\mu e \\gamma^\\nu\\, v(p_4)]"></span>
+  <span data-tex-align="\\mathcal{M} = [\\bar{v}(p_2)\\, iQ_e e \\gamma^\\mu\\, u(p_1)] \\; \\frac{-i g_{\\mu\\nu}}{s} \\; [\\bar{u}(p_3)\\, iQ_\\mu e \\gamma^\\nu\\, v(p_4)]"></span>
 </div>
 <p>In Compton scattering, by contrast, there is a single fermion line running
 through both vertices, with the fermion propagator in between:</p>
 <div class="formula-block">
-  <span data-tex-block="\\mathcal{M} = \\bar{u}(p_3)\\, iQe\\slashed{\\epsilon}^*\\; \\frac{i(\\slashed{q}+m)}{q^2-m^2} \\; iQe\\slashed{\\epsilon}\\, u(p_1)"></span>
+  <span data-tex-align="\\mathcal{M} = \\bar{u}(p_3)\\, iQe\\slashed{\\epsilon}^*\\; \\frac{i(\\slashed{q}+m)}{q^2-m^2} \\; iQe\\slashed{\\epsilon}\\, u(p_1)"></span>
 </div>
 <p>The difference between the two cases is not a notational convention: it
 depends on what runs in the internal line, and is determined by the model when
@@ -430,7 +429,7 @@ not matter, as it should not.</p>`,
 measured. One therefore sums over all final helicities and <i>averages</i> over
 the initial ones:</p>
 <div class="formula-block">
-  <span data-tex-block="\\langle|\\mathcal{M}|^2\\rangle = \\frac{1}{N}\\sum_{\\text{helicities}} |\\mathcal{M}|^2"></span>
+  <span data-tex-align="\\langle|\\mathcal{M}|^2\\rangle = \\frac{1}{N}\\sum_{\\text{helicities}} |\\mathcal{M}|^2"></span>
   <span class="formula-note">N = 4 for two initial particles with two states each</span>
 </div>
 <p>The traditional method now uses the completeness relations
@@ -457,15 +456,14 @@ identity stalls at 10⁻⁸ instead of 10⁻¹⁴.</p>`,
 <span data-tex="1 + 2 \\to 3 + 4"></span> are three combinations of the momenta
 that do not depend on the frame:</p>
 <div class="formula-block">
-  <span data-tex-block="s = (p_1+p_2)^2, \\quad t = (p_1-p_3)^2, \\quad u = (p_1-p_4)^2"></span>
-  <span data-tex-block="s + t + u = \\sum_i m_i^2"></span>
+  <span data-tex-align="s = (p_1+p_2)^2, \\quad t = (p_1-p_3)^2, \\quad u = (p_1-p_4)^2 \\\\ s + t + u = \\sum_i m_i^2"></span>
 </div>
 <p>That sum is a free check on the kinematics, which is exactly why it is shown
 in the results. In the centre-of-mass frame <span data-tex="\\sqrt{s}"></span> is
 the total available energy, and the channel names come from which of the three
 invariants appears in the propagator denominator.</p>
 <div class="formula-block">
-  <span data-tex-block="\\frac{d\\sigma}{d\\Omega} = \\frac{\\langle|\\mathcal{M}|^2\\rangle}{64\\pi^2 s} \\cdot \\frac{|p_f|}{|p_i|}"></span>
+  <span data-tex-align="\\frac{d\\sigma}{d\\Omega} = \\frac{\\langle|\\mathcal{M}|^2\\rangle}{64\\pi^2 s} \\cdot \\frac{|p_f|}{|p_i|}"></span>
 </div>
 <p>The result is in <span data-tex="\\text{GeV}^{-2}"></span>; conversion to
 picobarn uses <span data-tex="1\\,\\text{GeV}^{-2} = 3.894 \\times 10^8\\,\\text{pb}"></span>.
@@ -496,7 +494,7 @@ particle-antiparticle pair. This correction is special because it is a chain of
 bubbles that resums geometrically into a multiplicative factor on the
 propagator:</p>
 <div class="formula-block">
-  <span data-tex-block="\\alpha(q^2) = \\frac{\\alpha}{1 - \\Delta\\alpha(q^2)}"></span>
+  <span data-tex-align="\\alpha(q^2) = \\frac{\\alpha}{1 - \\Delta\\alpha(q^2)}"></span>
   <span class="formula-note">one loop, resummed to all orders</span>
 </div>
 <p>The upshot is that the electric charge <i>depends on energy</i>: probe closer
@@ -554,7 +552,7 @@ invariance and checks itself.</p>
 <p>Replacing an external photon's polarization by its own four-momentum, the
 <b>summed</b> amplitude must vanish:</p>
 <div class="formula-block">
-  <span data-tex-block="\\epsilon^\\mu \\to k^\\mu \\;\\Rightarrow\\; \\sum_i \\mathcal{M}_i = 0"></span>
+  <span data-tex-align="\\epsilon^\\mu \\to k^\\mu \\;\\Rightarrow\\; \\sum_i \\mathcal{M}_i = 0"></span>
 </div>
 <p>The individual diagrams do not vanish at all: they cancel against each other.
 That is precisely what makes the test severe — it fails if the relative sign is

@@ -165,25 +165,44 @@ function diagramAmplitude(diagram, momenta, helicities, override = null) {
   return cscale(amp, diagram.sign);
 }
 
-/* Human-readable expression for one diagram. */
+/* TeX source for one external leg's wavefunction. Emitting TeX rather than
+   pre-composed Unicode is what lets the subscripts, bars and Dirac slashes be
+   typeset properly instead of approximated with combining characters. */
+function legSymbolTex(leg, slashed = false) {
+  const P = PARTICLES[leg.particle];
+  const n = leg.idx + 1;
+  if (P.kind === 'boson') {
+    const base = slashed ? '\\slashed{\\epsilon}' : '\\epsilon';
+    return leg.role === 'in' ? `${base}(k_${n})` : `${base}^*(k_${n})`;
+  }
+  if (P.kind === 'fermion') {
+    return leg.role === 'in' ? `u(p_${n})` : `\\bar{u}(p_${n})`;
+  }
+  return leg.role === 'in' ? `\\bar{v}(p_${n})` : `v(p_${n})`;
+}
+
+/* The amplitude of one diagram, as TeX. This is a faithful transcription of
+   what the code actually contracts, not a simplified closed form. */
 function diagramExpression(diagram) {
   const { legs, internal } = diagram;
   const sgn = diagram.sign < 0 ? '−' : '+';
-  const chan = diagram.channel;
-  const denom = { s: 's', t: 't', u: 'u' }[chan];
+  const denom = diagram.channel;
 
   if (PARTICLES[internal].kind === 'boson') {
-    const part = (pair) => {
-      const bi = pair.find((i) => legType(legs[i]) === 'bar');
-      const ni = pair.find((i) => legType(legs[i]) === 'nonbar');
-      return { bi, ni };
-    };
+    const part = (pair) => ({
+      bi: pair.find((i) => legType(legs[i]) === 'bar'),
+      ni: pair.find((i) => legType(legs[i]) === 'nonbar'),
+    });
     const A = part(diagram.legsA), B = part(diagram.legsB);
     return {
       sign: sgn,
-      body: `(ie)²·(−i/${denom})·[${legSymbol(legs[A.bi])} γ^μ ${legSymbol(legs[A.ni])}]·[${legSymbol(legs[B.bi])} γ_μ ${legSymbol(legs[B.ni])}]`,
-      propagator: `−i g_{μν} / ${denom}`,
+      tex:
+        `(ie)^2 \\left[ ${legSymbolTex(legs[A.bi])} \\gamma^\\mu ${legSymbolTex(legs[A.ni])} \\right]` +
+        ` \\frac{-i g_{\\mu\\nu}}{${denom}} ` +
+        `\\left[ ${legSymbolTex(legs[B.bi])} \\gamma^\\nu ${legSymbolTex(legs[B.ni])} \\right]`,
+      propagatorTex: `\\frac{-i g_{\\mu\\nu}}{${denom}}`,
       internalLabel: PARTICLES[internal].label,
+      internalTex: PARTICLES[internal].tex,
     };
   }
 
@@ -193,14 +212,16 @@ function diagramExpression(diagram) {
   const inA = diagram.legsA.includes(ni);
   const pNon = (inA ? diagram.legsA : diagram.legsB).find((i) => i !== ni);
   const pBar = (inA ? diagram.legsB : diagram.legsA).find((i) => i !== bi);
-  const m = PARTICLES[internal].label;
+
   return {
     sign: sgn,
-    body: `(ie)²·${legSymbol(legs[bi])} ε̸*(k) [i(q̸+m)/(q²−m²)] ε̸(k) ${legSymbol(legs[ni])}`
-      .replace('ε̸*(k)', `${legSymbol(legs[pBar]).replace('ε', 'ε̸')}`)
-      .replace('ε̸(k)', `${legSymbol(legs[pNon]).replace('ε', 'ε̸')}`),
-    propagator: `i(q̸ + m_${m}) / (q² − m²)`,
-    internalLabel: m,
+    tex:
+      `(ie)^2 \\, ${legSymbolTex(legs[bi])} \\, ${legSymbolTex(legs[pBar], true)} ` +
+      `\\frac{i(\\slashed{q} + m)}{q^2 - m^2} ` +
+      `${legSymbolTex(legs[pNon], true)} \\, ${legSymbolTex(legs[ni])}`,
+    propagatorTex: `\\frac{i(\\slashed{q} + m)}{q^2 - m^2}`,
+    internalLabel: PARTICLES[internal].label,
+    internalTex: PARTICLES[internal].tex,
   };
 }
 

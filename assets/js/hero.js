@@ -59,7 +59,9 @@ function initHero(host) {
     last = ts;
     const phase = reduced ? 0 : ts / 380;
     heroDiagrams.forEach((d, i) => {
-      renderDiagram(canvases[i], d, { width: w, height: h, phase: phase + i * 1.1 });
+      // No leg labels here: on the cover these are ornament, and the lettering
+      // only clutters the line work at this size.
+      renderDiagram(canvases[i], d, { width: w, height: h, phase: phase + i * 1.1, labels: false });
     });
   };
   frame(0);

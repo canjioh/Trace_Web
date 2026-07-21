@@ -10,3 +10,9 @@ desktop.ini
 *~
 
 # Nothing is built, so there is no build output to ignore.
+
+# Reference texts consulted while writing the theory section. These are
+# copyrighted and must never be committed to a public repository.
+*.pdf
+*.djvu
+*.epub

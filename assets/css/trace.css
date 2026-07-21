@@ -66,29 +66,38 @@ body {
 /* One letter per page is set in negative — paper on ink — so each section of
    the site is identifiable at a glance without introducing a second colour. */
 .wordmark .ltr { display: inline-block; }
+/* The negative letter needs its own tighter tracking: the block would otherwise
+   inherit the wordmark's wide letterspace as trailing padding inside the box. */
 .wordmark .ltr.neg {
   background: var(--ink);
   color: var(--paper);
-  padding: 0 0.06em 0.04em;
+  padding: 0.08em 0.1em 0.1em 0.14em;
   margin-right: 0.06em;
+  letter-spacing: 0;
 }
 
+/* The wordmark is set light and wide rather than heavy: at this size the
+   letterforms carry the presence, and the weight was fighting the line work of
+   the diagrams below it. The subtitle is optically aligned to the left edge of
+   the T — a wide letterspace shifts the visual left edge, which is why the
+   negative text-indent is needed to make the two line up. */
+.brand { display: block; }
 .wordmark {
   font-family: var(--sans);
-  font-size: clamp(2.9rem, 11vw, 6rem);
-  font-weight: 800;
-  letter-spacing: 0.16em;
-  line-height: 0.86;
+  font-size: clamp(2.6rem, 9.5vw, 5rem);
+  font-weight: 300;
+  letter-spacing: 0.3em;
+  line-height: 1;
   margin: 0;
-  text-indent: 0.16em;
 }
 .expand {
   font-family: var(--sans);
-  font-size: clamp(0.6rem, 1.5vw, 0.73rem);
-  letter-spacing: 0.26em;
+  font-size: clamp(0.58rem, 1.4vw, 0.7rem);
+  font-weight: 400;
+  letter-spacing: 0.22em;
   text-transform: uppercase;
   color: var(--mid);
-  margin: 0.7rem 0 0;
+  margin: 0.55rem 0 0;
 }
 
 .toggles { display: flex; gap: 0.5rem; }
@@ -321,17 +330,16 @@ select:focus-visible, input:focus-visible, .btn:focus-visible, .toggle:focus-vis
 .canvas-slot { display: flex; justify-content: center; padding: 0.6rem 0 0.2rem; }
 .canvas-slot canvas { display: block; max-width: 100%; }
 
+/* The amplitude is typeset, not printed as monospace text: this is where the
+   subscripts, bars and Dirac slashes actually appear. */
 .expr {
-  font-family: var(--mono);
-  font-size: 0.74rem;
-  line-height: 1.75;
-  background: var(--wash);
-  border: 1px solid var(--hair);
-  padding: 0.6rem 0.7rem;
-  margin-top: 0.5rem;
+  border-top: 1px solid var(--hair);
+  border-bottom: 1px solid var(--hair);
+  padding: 0.9rem 0.5rem;
+  margin-top: 0.7rem;
   overflow-x: auto;
-  white-space: nowrap;
 }
+.expr .tx-display { font-size: 0.95rem; line-height: 2.1; }
 
 .meta {
   display: grid;
@@ -726,6 +734,34 @@ footer {
 .tx-display sup { top: -0.62em; }
 .tx-display sub { bottom: -0.3em; }
 
+/* Aligned multi-line display (see texAlign). Three columns — right-aligned
+   left-hand sides, the relation symbol, left-aligned right-hand sides — so the
+   equals signs form a vertical column, which is the whole point. The grid is
+   centred as a block within the formula panel. */
+.tx-align {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: baseline;
+  justify-content: center;
+  column-gap: 0.45em;
+  row-gap: 0.85em;
+  font-size: 1.18rem;
+  line-height: 2.1;
+  width: max-content;
+  max-width: 100%;
+  margin: 0 auto;
+  /* Override the nowrap inherited from .tx: a long right-hand side must be
+     allowed to break at the <wbr> markers rather than overflow its panel. */
+  white-space: normal;
+}
+.tx-al-lhs { text-align: right; }
+.tx-al-rel { text-align: center; }
+.tx-al-rhs { text-align: left; }
+.tx-al-full { grid-column: 1 / -1; text-align: center; }
+.tx-align .tx-frac { vertical-align: -0.52em; margin: 0 0.3em; }
+.tx-align sup { top: -0.62em; }
+.tx-align sub { bottom: -0.3em; }
+
 /* A displayed equation is set off from the prose by rules above and below
    rather than by a filled box: lighter on the page, and it prints. */
 .formula-block {
@@ -757,21 +793,66 @@ footer {
 
 /* ---------- higher orders ---------- */
 
-.switch {
-  display: inline-flex;
+/* Segmented control for the calculation order. Two mutually exclusive states
+   read better as adjacent segments than as a checkbox, because neither is a
+   "default off" — they are two named accuracies. */
+.order-ctrl { margin-top: 1.6rem; }
+.segmented { display: flex; flex-wrap: wrap; border: 1.5px solid var(--ink); width: max-content; max-width: 100%; }
+.seg {
+  display: flex;
   align-items: center;
-  gap: 0.7rem;
-  border: 1.5px solid var(--ink);
-  padding: 0.6rem 1rem;
+  gap: 0.55rem;
+  padding: 0.6rem 1.1rem;
   cursor: pointer;
   font-family: var(--sans);
   font-size: 0.68rem;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  margin: 0.4rem 0 1.4rem;
+  color: var(--mid);
 }
-.switch input { accent-color: var(--ink); width: 15px; height: 15px; margin: 0; }
-.switch:hover { background: var(--wash); }
+.seg + .seg { border-left: 1.5px solid var(--ink); }
+.seg input { accent-color: var(--ink); width: 14px; height: 14px; margin: 0; flex: none; }
+.seg:hover { background: var(--wash); }
+.seg:has(input:checked) { background: var(--ink); color: var(--paper); font-weight: 700; }
+/* Fallback for engines without :has — the label text still changes weight. */
+.seg input:checked ~ span { font-weight: 700; }
+
+/* ---------- one-loop diagram gallery ---------- */
+
+.fam-head {
+  display: flex;
+  align-items: baseline;
+  gap: 0.8rem;
+  flex-wrap: wrap;
+  margin: 2.4rem 0 0.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--hair);
+}
+.fam-tag {
+  font-size: 0.58rem;
+  letter-spacing: 0.14em;
+  border: 1px solid var(--mid);
+  color: var(--mid);
+  padding: 0.15rem 0.45rem;
+  font-weight: 400;
+}
+.fam-tag.yes { border-color: var(--ink); color: var(--paper); background: var(--ink); font-weight: 700; }
+.fam-n { margin-left: auto; font-family: var(--mono); color: var(--mid); font-weight: 400; letter-spacing: 0; }
+.fam-desc { font-size: 0.9rem; color: var(--mid); max-width: var(--measure); margin: 0 0 1.1rem; }
+
+.loop-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 0.9rem;
+}
+.loop-cell { margin: 0; border: 1px solid var(--hair); padding: 0.5rem 0.4rem 0.4rem; text-align: center; }
+.loop-cell canvas { display: block; margin: 0 auto; max-width: 100%; }
+.loop-cell figcaption {
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  color: var(--mid);
+  margin-top: 0.35rem;
+}
 
 .callout {
   border: 1.5px solid var(--ink);

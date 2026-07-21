@@ -73,6 +73,7 @@ function rebuild() {
   $('reactionName').textContent = state.reaction.name;
   $('note').textContent = reactionNote(state.reaction.custom ? 'custom' : state.reaction.id);
   renderDiagrams();
+  renderLoops();
   recompute();
 }
 
@@ -92,16 +93,17 @@ function renderDiagrams() {
     const expr = diagramExpression(d);
     const card = document.createElement('figure');
     card.className = 'diagram';
+    const lhs = `\\mathcal{M}_${d.channel} = ${expr.sign === '−' ? '-' : ''}`;
     card.innerHTML = `
       <figcaption class="diagram-head">
         <span class="chan"><span class="pat pat-${i}"></span>${t('diag.channel')} ${d.channel}</span>
         <span class="sign ${d.sign < 0 ? 'neg' : ''}">${t('diag.sign')} ${d.sign < 0 ? '−' : '+'}</span>
       </figcaption>
       <div class="canvas-slot"></div>
-      <div class="expr">ℳ_${d.channel} = ${expr.sign === '−' ? '−' : ''}${expr.body}</div>
+      <div class="expr">${texBlock(lhs + expr.tex)}</div>
       <dl class="meta">
-        <dt>${t('diag.propagator')}</dt><dd><code>${expr.propagator}</code></dd>
-        <dt>${t('diag.internal')}</dt><dd><code>${expr.internalLabel}</code></dd>
+        <dt>${t('diag.propagator')}</dt><dd>${tex(expr.propagatorTex)}</dd>
+        <dt>${t('diag.internal')}</dt><dd>${tex(expr.internalTex)}</dd>
       </dl>
       <div class="contrib" id="contrib-${i}"></div>`;
     host.appendChild(card);
@@ -111,6 +113,69 @@ function renderDiagrams() {
     const w = Math.min(340, card.clientWidth - 32);
     renderDiagram(cv, d, { width: w, height: Math.round(w * 0.62) });
   });
+}
+
+/* --- one-loop topologies: enumerated and drawn, never evaluated --- */
+
+const LOOP_FAMILIES = [
+  { key: 'vacuum-pol', name: 'loops.famVac', desc: 'loops.famVacD', computable: true },
+  { key: 'vertex', name: 'loops.famVertex', desc: 'loops.famVertexD', computable: false },
+  { key: 'box', name: 'loops.famBox', desc: 'loops.famBoxD', computable: false },
+  { key: 'self-energy', name: 'loops.famSelf', desc: 'loops.famSelfD', computable: false },
+];
+
+function renderLoops() {
+  const host = $('loops');
+  if (!state.diagrams.length) {
+    host.innerHTML = '';
+    $('loopCount').textContent = '';
+    return;
+  }
+
+  const sum = oneLoopSummary(state.diagrams);
+  const pairsPerDiagram = (sum.lineCount * (sum.lineCount + 1)) / 2;
+  $('loopCount').textContent = `${sum.total}`;
+
+  let html = `<div class="callout">
+      <h4>${t('loops.counting')}</h4>
+      <p>${t('loops.countingBody', sum.lineCount, pairsPerDiagram, sum.total, sum.treeCount)}</p>
+    </div>
+    <div class="callout">
+      <h4>${t('loops.drawnNotEvaluated')}</h4>
+      <p>${t('loops.drawnBody')}</p>
+    </div>`;
+
+  for (const fam of LOOP_FAMILIES) {
+    const items = sum.families[fam.key];
+    if (!items.length) continue;
+    html += `<h3 class="fam-head">
+        ${t(fam.name)}
+        <span class="fam-tag ${fam.computable ? 'yes' : ''}">${t(fam.computable ? 'loops.computable' : 'loops.shownOnly')}</span>
+        <span class="fam-n">${items.length}</span>
+      </h3>
+      <p class="fam-desc">${t(fam.desc)}</p>
+      <div class="loop-grid" data-family="${fam.key}"></div>`;
+  }
+  html += `<p class="aside">${t('loops.ref')}</p>`;
+  host.innerHTML = html;
+
+  // Draw after the grids exist so each canvas can be sized from its container.
+  for (const fam of LOOP_FAMILIES) {
+    const items = sum.families[fam.key];
+    const grid = host.querySelector(`.loop-grid[data-family="${fam.key}"]`);
+    if (!grid || !items.length) continue;
+    for (const topo of items) {
+      const fig = document.createElement('figure');
+      fig.className = 'loop-cell';
+      fig.innerHTML = `<figcaption>${topo.channel} · ${topo.label}</figcaption>`;
+      grid.appendChild(fig);
+      const cv = document.createElement('canvas');
+      fig.insertBefore(cv, fig.firstChild);
+      // Size from the cell the grid actually produced, so the drawing fills it.
+      const w = Math.max(130, fig.clientWidth - 14);
+      renderLoopDiagram(cv, topo, { width: w, height: Math.round(w * 0.72) });
+    }
+  }
 }
 
 /* --- numbers --- */
@@ -170,7 +235,7 @@ function recompute() {
 
   html += `<h3>${t('res.contrib')}</h3><div class="bars">`;
   state.diagrams.forEach((d, i) => {
-    html += bar(`|ℳ_${d.channel}|²`, res.perDiagram[i], res.m2avg, `pat-${i}`);
+    html += bar(tex(`|\\mathcal{M}_${d.channel}|^2`), res.perDiagram[i], res.m2avg, `pat-${i}`);
   });
   if (state.diagrams.length > 1) {
     html += bar(t('res.interference'), res.interference, res.m2avg, 'pat-neg');
@@ -189,7 +254,7 @@ function recompute() {
     const el = $(`contrib-${i}`);
     if (!el) return;
     const frac = (100 * res.perDiagram[i]) / res.m2avg;
-    el.innerHTML = `|ℳ_${d.channel}|² = <b>${fmt(res.perDiagram[i], 5)}</b>
+    el.innerHTML = `${tex(`|\\mathcal{M}_${d.channel}|^2`)} = <b>${fmt(res.perDiagram[i], 5)}</b>
       <span class="dim">(${frac.toFixed(1)}% ${t('diag.contribShare')})</span>`;
   });
 
@@ -377,6 +442,7 @@ PAGE.onLang = () => {
 };
 PAGE.onTheme = () => {
   renderDiagrams();
+  renderLoops();
   recompute();
 };
 
@@ -397,7 +463,13 @@ document.addEventListener('DOMContentLoaded', () => {
   $('sqrtSslider').addEventListener('input', (e) => { setSqrtS(Math.pow(10, parseFloat(e.target.value))); recompute(); });
   $('cosSlider').addEventListener('input', (e) => { setCos(parseFloat(e.target.value)); recompute(); });
   $('runval').addEventListener('click', runValidation);
-  $('runAlpha').addEventListener('change', (e) => { setRunningAlpha(e.target.checked); recompute(); });
+  document.querySelectorAll('input[name="order"]').forEach((radio) => {
+    radio.addEventListener('change', (e) => {
+      if (!e.target.checked) return;
+      setRunningAlpha(e.target.value === 'vp');
+      recompute();
+    });
+  });
 
   setSqrtS(state.sqrtS);
   setCos(state.cosTheta);
@@ -407,6 +479,6 @@ document.addEventListener('DOMContentLoaded', () => {
   let rt;
   window.addEventListener('resize', () => {
     clearTimeout(rt);
-    rt = setTimeout(() => { renderDiagrams(); recompute(); }, 150);
+    rt = setTimeout(() => { renderDiagrams(); renderLoops(); recompute(); }, 150);
   });
 });

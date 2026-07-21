@@ -148,6 +148,23 @@ used as input, and the caesium and rubidium determinations disagree at exactly
 that level. That is a live tension in the field, and the table says so rather
 than rounding it away.
 
+### One-loop topologies: drawn, not evaluated
+
+The calculator also enumerates and draws the one-loop corrections to whichever
+process is selected. The counting follows Griffiths, *Introduction to Elementary
+Particles*, §6.6: the next order is reached by adding one internal line joining
+any two lines of the tree graph, including a line to itself. A 2 → 2 tree graph
+has five lines, so there are `C(5,2) + 5 = 15` ways per diagram; in QED only
+those whose endpoints admit a fermion-antifermion-photon vertex survive, which
+for `e⁻e⁺ → μ⁻μ⁺` leaves 11, sorted into self-energy, vacuum polarization,
+vertex and box families.
+
+They are **drawn but never evaluated**, and the interface says so on each
+family. Individually a one-loop diagram is divergent — the loop integral goes as
+`∫d⁴q/q⁴`, logarithmically — and gauge-dependent, so a number beside it would be
+meaningless. Only vacuum polarization is separately finite and gauge-invariant,
+which is why it is the one family the page can actually compute.
+
 The other one-loop corrections are deliberately absent. Vacuum polarization is
 tractable because a chain of bubbles resums into a multiplicative factor on the
 propagator. Vertex corrections and boxes do not: they need tensor reduction and
@@ -231,6 +248,7 @@ assets/js/
   parse.js        user-entered reaction parsing
   kinematics.js   2->2 CM kinematics, cross sections, quadrature
   topology.js     diagram enumeration
+  loops.js        one-loop topology enumeration (Griffiths §6.6)
   alpha.js        one-loop vacuum polarization, running coupling
   amplitude.js    Feynman rules, fermion signs, helicity sum
   render.js       diagram drawing
