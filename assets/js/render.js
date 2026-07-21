@@ -103,9 +103,48 @@ function drawVertex(ctx, p) {
   ctx.fill();
 }
 
+/* Particle label, set as base glyph + raised charge + lowered index.
+
+   Composing it from Unicode superscripts ("e⁻₁") looks wrong, because those
+   codepoints carry their own metrics and do not sit on a common baseline with
+   the base glyph. Placing three runs by hand gives the alignment a formula
+   deserves, and matches how the same symbol is set in the text. */
+const LABEL_SERIF = '"Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif';
+
+function drawParticleLabel(ctx, p, sym, sup, sub, align) {
+  const base = 15;
+  const script = 10;
+  const baseFont = `italic ${base}px ${LABEL_SERIF}`;
+  const scriptFont = `${script}px ${LABEL_SERIF}`;
+
+  ctx.textBaseline = 'alphabetic';
+  ctx.textAlign = 'left';
+  ctx.fillStyle = COL.ink;
+
+  ctx.font = baseFont;
+  const wSym = ctx.measureText(sym).width;
+  ctx.font = scriptFont;
+  const wSup = sup ? ctx.measureText(sup).width : 0;
+  const wSub = sub ? ctx.measureText(sub).width : 0;
+  // Superscript and subscript are stacked, so the group is only as wide as the
+  // base plus whichever script is wider.
+  const total = wSym + Math.max(wSup, wSub) + 1;
+
+  const gap = 9;
+  const x = align === 'right' ? p.x - gap - total : p.x + gap;
+  const y = p.y + base * 0.35; // optical centring on the endpoint
+
+  ctx.font = baseFont;
+  ctx.fillText(sym, x, y);
+  ctx.font = scriptFont;
+  if (sup) ctx.fillText(sup, x + wSym + 1, y - base * 0.42);
+  if (sub) ctx.fillText(sub, x + wSym + 1, y + base * 0.22);
+}
+
+/* Plain text label, for the internal-line tag. */
 function drawLabel(ctx, p, text, align) {
   ctx.fillStyle = COL.ink;
-  ctx.font = '600 14px ui-monospace, "Cascadia Mono", Consolas, monospace';
+  ctx.font = `italic 14px ${LABEL_SERIF}`;
   ctx.textBaseline = 'middle';
   ctx.textAlign = align;
   ctx.fillText(text, p.x + (align === 'right' ? -8 : 8), p.y);
@@ -129,7 +168,7 @@ function drawExternal(ctx, leg, endpoint, vertex, phase = 0, labels = true) {
   }
   if (!labels) return;
   const align = endpoint.x < vertex.x ? 'right' : 'left';
-  drawLabel(ctx, endpoint, `${P.label}${SUBS[leg.idx]}`, align);
+  drawParticleLabel(ctx, endpoint, P.sym, P.sup, String(leg.idx + 1), align);
 }
 
 /* Geometry of a tree diagram, separated from the drawing so that the one-loop
@@ -203,7 +242,9 @@ function renderDiagram(canvas, diagram, opts = {}) {
 
   // Internal line first, so vertices sit on top.
   const intP = PARTICLES[diagram.internal];
-  if (intP.kind === 'boson') {
+  if (opts.skipInternal) {
+    // The caller draws it: a vacuum-polarization insertion interrupts the line.
+  } else if (intP.kind === 'boson') {
     drawPhoton(ctx, vA, vB, phase);
   } else {
     // Fermion flows from the vertex holding the non-barred spinor to the other.
@@ -214,11 +255,11 @@ function renderDiagram(canvas, diagram, opts = {}) {
 
   if (labels) {
     ctx.fillStyle = COL.mid;
-    ctx.font = '11px ui-monospace, Consolas, monospace';
+    ctx.font = `italic 12px ${LABEL_SERIF}`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'bottom';
     const mid = { x: (vA.x + vB.x) / 2, y: (vA.y + vB.y) / 2 };
-    ctx.fillText(intP.label, mid.x + (bothInA ? 0 : 16), mid.y - (bothInA ? 10 : 0));
+    ctx.fillText(intP.sym, mid.x + (bothInA ? 0 : 16), mid.y - (bothInA ? 11 : 0));
   }
 
   for (const [idx, pt] of ends) {
@@ -258,53 +299,84 @@ function drawPhotonArc(ctx, p1, p2, bulge) {
   ctx.stroke();
 }
 
-/* Fermion bubble inserted into a line: an ellipse with two arrowheads. */
-function drawBubble(ctx, centre, along, size) {
+/* Closed fermion loop, drawn as a circle with fermion-number arrowheads at the
+   top and bottom. This is the standard textbook rendering of a vacuum
+   polarization insertion: the photon line stops on the loop and resumes on the
+   far side, rather than passing through it. */
+function drawFermionLoop(ctx, centre, along, radius) {
   const len = Math.hypot(along.x, along.y) || 1;
   const ux = along.x / len, uy = along.y / len;
-  const ang = Math.atan2(uy, ux);
+  const nx = -uy, ny = ux;
 
   ctx.strokeStyle = COL.ink;
   ctx.lineWidth = 1.5;
   ctx.beginPath();
-  ctx.ellipse(centre.x, centre.y, size, size * 0.68, ang, 0, 2 * Math.PI);
+  ctx.arc(centre.x, centre.y, radius, 0, 2 * Math.PI);
   ctx.stroke();
 
-  // Arrowheads at top and bottom of the ellipse, showing fermion-number flow.
-  const nx = -uy, ny = ux;
-  const s = 5;
+  /* Arrowheads on the two extremes of the axis perpendicular to the photon,
+     pointing in opposite directions along the loop: particle one way round,
+     antiparticle the other. */
+  const s = 5.5;
+  ctx.fillStyle = COL.ink;
   for (const sgn of [1, -1]) {
-    const px = centre.x + nx * sgn * size * 0.68;
-    const py = centre.y + ny * sgn * size * 0.68;
-    const dx = ux * sgn, dy = uy * sgn;
-    ctx.fillStyle = COL.ink;
+    const px = centre.x + nx * sgn * radius;
+    const py = centre.y + ny * sgn * radius;
+    const dx = ux * sgn, dy = uy * sgn; // tangent at that point
     ctx.beginPath();
     ctx.moveTo(px + dx * s, py + dy * s);
-    ctx.lineTo(px - dx * s * 0.5 - nx * s * 0.45, py - dy * s * 0.5 - ny * s * 0.45);
-    ctx.lineTo(px - dx * s * 0.5 + nx * s * 0.45, py - dy * s * 0.5 + ny * s * 0.45);
+    ctx.lineTo(px - dx * s * 0.55 - nx * s * 0.5, py - dy * s * 0.55 - ny * s * 0.5);
+    ctx.lineTo(px - dx * s * 0.55 + nx * s * 0.5, py - dy * s * 0.55 + ny * s * 0.5);
     ctx.closePath();
     ctx.fill();
   }
 }
 
-/* Draw a tree diagram with one one-loop correction superimposed. */
+/* Draw a tree diagram with one one-loop correction superimposed.
+
+   The four families are drawn the way a textbook draws them (Griffiths §6.6):
+   a vacuum polarization interrupts the internal line with a closed fermion
+   loop; a self-energy is a photon that leaves a line and returns to it; a
+   vertex correction closes a triangle with the vertex its two lines share; a
+   box spans two lines that share nothing. */
 function renderLoopDiagram(canvas, topo, opts = {}) {
   const W = opts.width || 260, H = opts.height || 170;
   const diagram = topo.tree;
-  const layout = renderDiagram(canvas, diagram, { width: W, height: H, labels: false });
+  const layout = renderDiagram(canvas, diagram, {
+    width: W,
+    height: H,
+    labels: false,
+    skipInternal: topo.family === 'vacuum-pol',
+  });
   const ctx = canvas.getContext('2d');
   const [la, lb] = topo.lines;
+  const { vA, vB } = layout;
 
   if (topo.family === 'vacuum-pol') {
-    // Fermion loop sitting in the middle of the internal photon line.
-    const { p } = pointOnLine(diagram, layout, 4);
-    const along = { x: layout.vB.x - layout.vA.x, y: layout.vB.y - layout.vA.y };
-    drawBubble(ctx, p, along, Math.min(W, H) * 0.13);
+    /* The photon runs into the loop and out the other side. Drawing the full
+       photon and laying a circle on top of it — which is what this used to do —
+       reads as a photon with a blob stuck on it, not as an insertion. */
+    const centre = { x: (vA.x + vB.x) / 2, y: (vA.y + vB.y) / 2 };
+    const dx = vB.x - vA.x, dy = vB.y - vA.y;
+    const len = Math.hypot(dx, dy) || 1;
+    const ux = dx / len, uy = dy / len;
+    const radius = Math.min(len * 0.26, Math.min(W, H) * 0.15);
+
+    const inEdge = { x: centre.x - ux * radius, y: centre.y - uy * radius };
+    const outEdge = { x: centre.x + ux * radius, y: centre.y + uy * radius };
+    drawPhoton(ctx, vA, inEdge);
+    drawPhoton(ctx, outEdge, vB);
+    drawFermionLoop(ctx, centre, { x: ux, y: uy }, radius);
+    drawVertex(ctx, inEdge);
+    drawVertex(ctx, outEdge);
   } else if (topo.family === 'self-energy') {
-    // Photon leaving and rejoining the same line.
-    const g1 = pointOnLine(diagram, layout, la.idx, 0.35);
-    const g2 = pointOnLine(diagram, layout, la.idx, 0.75);
-    drawPhotonArc(ctx, g1.p, g2.p, Math.min(W, H) * 0.16);
+    /* A photon leaving the line and rejoining it, bulging away from the body of
+       the diagram so the arc stays clear of everything else. */
+    const g1 = pointOnLine(diagram, layout, la.idx, 0.32);
+    const g2 = pointOnLine(diagram, layout, la.idx, 0.72);
+    const mid = { x: (g1.p.x + g2.p.x) / 2, y: (g1.p.y + g2.p.y) / 2 };
+    const bulge = outwardBulge(g1.p, g2.p, mid, { x: W / 2, y: H / 2 }, Math.min(W, H) * 0.19);
+    drawPhotonArc(ctx, g1.p, g2.p, bulge);
     drawVertex(ctx, g1.p);
     drawVertex(ctx, g2.p);
   } else {
@@ -333,6 +405,16 @@ function renderLoopDiagram(canvas, topo, opts = {}) {
     drawVertex(ctx, g1.p);
     drawVertex(ctx, g2.p);
   }
+}
+
+/* Signed bulge that makes an arc bow away from `from` — used to keep loop
+   corrections clear of the diagram they sit on. */
+function outwardBulge(p1, p2, mid, from, size) {
+  const dx = p2.x - p1.x, dy = p2.y - p1.y;
+  const len = Math.hypot(dx, dy) || 1;
+  const nx = -dy / len, ny = dx / len;
+  const away = (mid.x - from.x) * nx + (mid.y - from.y) * ny;
+  return (away >= 0 ? 1 : -1) * size;
 }
 
 /* The vertex two lines have in common, if any. */

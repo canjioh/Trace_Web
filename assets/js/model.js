@@ -6,13 +6,13 @@ const ALPHA_EM = 1 / 137.035999084;
 const E_CHARGE = Math.sqrt(4 * Math.PI * ALPHA_EM); // e = sqrt(4 pi alpha)
 
 const PARTICLES = {
-  'e-':  { name: 'e-',  tex: 'e^-',    label: 'e⁻', mass: 0.000510999, spin: 0.5, charge: -1, anti: 'e+',  kind: 'fermion' },
-  'e+':  { name: 'e+',  tex: 'e^+',    label: 'e⁺', mass: 0.000510999, spin: 0.5, charge: +1, anti: 'e-',  kind: 'antifermion' },
-  'mu-': { name: 'mu-', tex: '\\mu^-', label: 'μ⁻', mass: 0.1056583755, spin: 0.5, charge: -1, anti: 'mu+', kind: 'fermion' },
-  'mu+': { name: 'mu+', tex: '\\mu^+', label: 'μ⁺', mass: 0.1056583755, spin: 0.5, charge: +1, anti: 'mu-', kind: 'antifermion' },
-  'tau-':{ name: 'tau-',tex: '\\tau^-',label: 'τ⁻', mass: 1.77686, spin: 0.5, charge: -1, anti: 'tau+', kind: 'fermion' },
-  'tau+':{ name: 'tau+',tex: '\\tau^+',label: 'τ⁺', mass: 1.77686, spin: 0.5, charge: +1, anti: 'tau-', kind: 'antifermion' },
-  'A':   { name: 'A',   tex: '\\gamma',label: 'γ',  mass: 0, spin: 1, charge: 0, anti: 'A', kind: 'boson' },
+  'e-':  { name: 'e-',  tex: 'e^-',    label: 'e⁻', mass: 0.000510999, spin: 0.5, charge: -1, anti: 'e+',  sym: 'e', sup: '−', kind: 'fermion' },
+  'e+':  { name: 'e+',  tex: 'e^+',    label: 'e⁺', mass: 0.000510999, spin: 0.5, charge: +1, anti: 'e-',  sym: 'e', sup: '+', kind: 'antifermion' },
+  'mu-': { name: 'mu-', tex: '\\mu^-', label: 'μ⁻', mass: 0.1056583755, spin: 0.5, charge: -1, anti: 'mu+', sym: 'μ', sup: '−', kind: 'fermion' },
+  'mu+': { name: 'mu+', tex: '\\mu^+', label: 'μ⁺', mass: 0.1056583755, spin: 0.5, charge: +1, anti: 'mu-', sym: 'μ', sup: '+', kind: 'antifermion' },
+  'tau-':{ name: 'tau-',tex: '\\tau^-',label: 'τ⁻', mass: 1.77686, spin: 0.5, charge: -1, anti: 'tau+', sym: 'τ', sup: '−', kind: 'fermion' },
+  'tau+':{ name: 'tau+',tex: '\\tau^+',label: 'τ⁺', mass: 1.77686, spin: 0.5, charge: +1, anti: 'tau-', sym: 'τ', sup: '+', kind: 'antifermion' },
+  'A':   { name: 'A',   tex: '\\gamma',label: 'γ',  mass: 0, spin: 1, charge: 0, anti: 'A', sym: 'γ', sup: '', kind: 'boson' },
 };
 
 const anti = (p) => PARTICLES[p].anti;

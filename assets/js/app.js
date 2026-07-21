@@ -70,6 +70,11 @@ function setCos(v) {
 function rebuild() {
   state.diagrams = generateDiagrams(state.reaction);
   assignSigns(state.diagrams);
+  /* Keep the text box showing the reaction actually loaded. Without this the
+     field is empty on a freshly opened page, so pressing "compute" parses an
+     empty string and reports an error even though a reaction is displayed. */
+  $('customInput').value = reactionToString(state.reaction);
+  $('customError').innerHTML = '';
   $('reactionName').textContent = state.reaction.name;
   $('note').textContent = reactionNote(state.reaction.custom ? 'custom' : state.reaction.id);
   renderDiagrams();
@@ -329,7 +334,46 @@ function renderOrders(R, ms) {
   const shift = (100 * (sigRun - sigTree)) / sigTree;
   const zCheck = checkRunningAlpha();
 
+  /* Per-flavour breakdown, so the reader can see which lepton is doing the
+     work at this energy rather than only the total. */
+  const flavourRows = LEPTONS.map((l) => {
+    const d = deltaAlphaFlavour(s, PARTICLES[l].mass);
+    return { label: PARTICLES[l].label, mass: PARTICLES[l].mass, d };
+  });
+
   host.innerHTML = `
+    <h3>${t('orders.howT')}</h3>
+    <p class="lead">${t('orders.howLead')}</p>
+
+    <p>${t('orders.howStep1')}</p>
+    <div class="formula-block">
+      <div data-tex-align="\\Delta\\alpha(q^2) = \\frac{2\\alpha}{\\pi} \\sum_{f} \\int_0^1 \\dd x \\; x(1-x) \\, \\ln\\left|\\frac{m_f^2 - x(1-x)q^2}{m_f^2}\\right|"></div>
+    </div>
+
+    <p>${t('orders.howStep2')}</p>
+    <div class="formula-block">
+      <div data-tex-align="\\alpha(q^2) = \\alpha \\left[1 + \\Delta\\alpha + (\\Delta\\alpha)^2 + \\ldots\\right] \\\\ \\alpha(q^2) = \\frac{\\alpha}{1 - \\Delta\\alpha(q^2)}"></div>
+    </div>
+
+    <p>${t('orders.howStep3')}</p>
+    <p class="aside">${t('orders.howNote')}</p>
+
+    <h3>${t('orders.perFlavour')}</h3>
+    <div class="scroll-x"><table class="checks">
+      <thead><tr>
+        <th>${t('orders.flavour')}</th><th>${t('orders.mass')}</th>
+        <th>${t('orders.contrib')}</th><th>${t('orders.share')}</th>
+      </tr></thead><tbody>
+      ${flavourRows
+        .map(
+          (r) => `<tr><td>${r.label}</td><td class="num">${r.mass.toPrecision(4)} GeV</td>
+          <td class="num">${r.d.toExponential(4)}</td>
+          <td class="num">${((100 * r.d) / dLep).toFixed(1)} %</td></tr>`
+        )
+        .join('')}
+      </tbody></table></div>
+    <p class="aside">${t('orders.thresholdNote')}</p>
+
     <h3>${t('orders.table')}</h3>
     <table class="kv">
       <tr><th>${t('orders.alpha0')}</th><td>${(1 / ALPHA_EM).toFixed(5)}</td></tr>
