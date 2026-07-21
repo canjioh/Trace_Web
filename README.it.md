@@ -231,18 +231,30 @@ assets/js/
 
 ## Comporre le formule
 
-Invece di tirare dentro MathJax o KaTeX — ciascuno una dipendenza da oltre un
-megabyte, contro una pagina che oggi sta in una manciata di file e non scarica
-nulla — TRACE include un piccolo compositore per il sottoinsieme di TeX che la
-fisica qui richiede davvero: apici e pedici, frazioni costruite con una vera
-linea di frazione, soprallineature, slash di Dirac, radicali, greco e gli
-operatori usuali. Sono circa 200 righe e produce solo HTML e CSS.
+Le formule sono composte da **MathJax**, incorporato in `assets/vendor/tex-svg.js`.
 
-I comandi non riconosciuti vengono mostrati invece di essere ingoiati in
-silenzio, così un errore di battitura si vede. Se la notazione dovesse crescere
-oltre questo — matrici, allineamenti, operatori grandi con estremi — la mossa
-onesta è incorporare la build SVG a file singolo di MathJax, che non richiede
-file di font e lascerebbe la pagina autosufficiente.
+Ha sostituito un compositore scritto a mano. Quel compositore produceva markup
+corretto, ma non è mai sembrato TeX, perché sembrare TeX significa avere le
+metriche di TeX: correzioni di corsivo, dimensioni e scarti degli indici, le
+classi di spaziatura fra tipi di atomo, le forme dei caratteri di Computer
+Modern. Reimplementarle in modo convincente è un progetto a sé.
+
+La build **SVG** è scelta di proposito, invece dell'output HTML-CSS di MathJax o
+di KaTeX: disegna i glifi come tracciati vettoriali e quindi non richiede
+**alcun file di font**. Il sito resta un insieme di file statici che funzionano
+da disco, offline, senza nulla da scaricare a runtime — la proprietà attorno a
+cui è costruito il progetto.
+
+Il costo è reale e va detto: `tex-svg.js` pesa 2.1 MB. Viene caricato solo da
+`theory.html` e `compute.html`, le due pagine con formule; la copertina no.
+
+Il resto del codice passa sempre e solo sorgente LaTeX, tramite
+`assets/js/math.js`:
+
+- `data-tex="..."` — in linea
+- `data-tex-align="a \ b"` — display, con i simboli di relazione incolonnati
+  (i marcatori `&` sono inseriti automaticamente)
+- `\slashed{q}` — barra di Feynman, definita come macro perché non è in MathJax
 
 ## Come farlo girare
 

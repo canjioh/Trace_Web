@@ -113,6 +113,7 @@ function renderDiagrams() {
     const w = Math.min(340, card.clientWidth - 32);
     renderDiagram(cv, d, { width: w, height: Math.round(w * 0.62) });
   });
+  typesetMath(host);
 }
 
 /* --- one-loop topologies: enumerated and drawn, never evaluated --- */
@@ -256,6 +257,12 @@ function recompute() {
     const frac = (100 * res.perDiagram[i]) / res.m2avg;
     el.innerHTML = `${tex(`|\\mathcal{M}_${d.channel}|^2`)} = <b>${fmt(res.perDiagram[i], 5)}</b>
       <span class="dim">(${frac.toFixed(1)}% ${t('diag.contribShare')})</span>`;
+  });
+
+  typesetMath(out);
+  state.diagrams.forEach((d, i) => {
+    const el = $(`contrib-${i}`);
+    if (el) typesetMath(el);
   });
 
   drawAngular(R, ms);
@@ -430,6 +437,7 @@ function runValidation() {
       <p class="verdict ${ok === checks.length ? 'pass' : 'fail'}">${t('val.passed', ok, checks.length)}</p>
       <p class="aside">${t('val.note')}</p>`;
     host.innerHTML = html;
+    typesetMath(host);
   }, 20);
 }
 

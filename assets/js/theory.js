@@ -2,7 +2,7 @@
 
    Written to be read in order: what a diagram actually is, what quantity it
    contributes to, then the machinery. Formulas are marked up with
-   data-tex-block / data-tex and typeset by tex.js after insertion.
+   data-tex-align / data-tex and typeset by math.js after insertion.
 
    Note the doubled backslashes: these are JavaScript string literals, and a
    single backslash before a letter is silently dropped by JS. */
@@ -576,5 +576,19 @@ function renderTheory(host) {
     </details>`
     )
     .join('');
+
+  /* The rules table is three columns wide and cannot shrink below its content;
+     on a narrow screen it would push the whole page sideways. Wrapping it in a
+     scroller keeps the overflow inside the table's own box. Done here rather
+     than in the markup so it applies to both languages and to any table added
+     later. */
+  host.querySelectorAll('table').forEach((tbl) => {
+    if (tbl.parentElement.classList.contains('scroll-x')) return;
+    const wrap = document.createElement('div');
+    wrap.className = 'scroll-x';
+    tbl.replaceWith(wrap);
+    wrap.appendChild(tbl);
+  });
+
   if (typeof typesetAll === 'function') typesetAll(host);
 }

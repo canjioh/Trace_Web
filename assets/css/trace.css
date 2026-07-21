@@ -5,7 +5,8 @@
    line pattern, hatching and weight — the way a printed physics figure does it,
    which also happens to make the whole thing colourblind-proof by construction.
 
-   System fonts only; nothing is fetched. */
+   System fonts for text; formulas are set by MathJax in Computer Modern.
+   Nothing is fetched at runtime — MathJax is vendored under assets/vendor. */
 
 :root[data-theme='paper'] {
   --paper: #ffffff;
@@ -330,16 +331,20 @@ select:focus-visible, input:focus-visible, .btn:focus-visible, .toggle:focus-vis
 .canvas-slot { display: flex; justify-content: center; padding: 0.6rem 0 0.2rem; }
 .canvas-slot canvas { display: block; max-width: 100%; }
 
-/* The amplitude is typeset, not printed as monospace text: this is where the
-   subscripts, bars and Dirac slashes actually appear. */
+/* The amplitude, set by MathJax. A tree amplitude is a long expression and the
+   card is narrow, so it is allowed to scroll inside its own rule-bounded strip
+   rather than being shrunk to illegibility. */
 .expr {
   border-top: 1px solid var(--hair);
   border-bottom: 1px solid var(--hair);
-  padding: 0.9rem 0.5rem;
+  padding: 0.7rem 0.4rem 0.6rem;
   margin-top: 0.7rem;
   overflow-x: auto;
+  overflow-y: hidden;
 }
-.expr .tx-display { font-size: 0.95rem; line-height: 2.1; }
+.expr mjx-container { font-size: 88%; }
+.expr .math-display mjx-container[display="true"] { margin: 0.2em 0 !important; }
+.meta mjx-container { font-size: 92%; }
 
 .meta {
   display: grid;
@@ -529,6 +534,9 @@ table.rules th {
 }
 table.rules td { padding: 0.5rem 1rem 0.5rem 0; vertical-align: top; border-bottom: 1px solid var(--hair); }
 table.rules td:last-child { color: var(--mid); font-size: 0.86rem; }
+/* Inside a scroller the table may take its natural width rather than being
+   crushed; the description column is what would otherwise collapse. */
+.scroll-x table.rules { min-width: 34rem; }
 
 /* ---------- validation ---------- */
 
@@ -665,116 +673,32 @@ footer {
   .colophon dd { border-top: 0; padding-top: 0.5rem; }
 }
 
-/* ---------- maths (see tex.js) ---------- */
+/* ---------- mathematics (MathJax SVG, see math.js) ---------- */
 
-.tx { font-family: var(--serif); white-space: nowrap; }
-.tx-var { font-style: italic; }
-.tx-num, .tx-sym, .tx-text, .tx-cal { font-style: normal; }
-.tx-cal { font-size: 1.06em; }
-.tx-op { padding: 0 0.16em; font-style: normal; }
-.tx-delim { padding: 0 0.04em; }
-.tx-unknown { color: var(--mid); font-family: var(--mono); font-size: 0.8em; }
+/* MathJax's SVG output paints with currentColor, so the paper/blackboard
+   switch carries the formulas with it and no per-theme rule is needed. */
+mjx-container[jax="SVG"] { color: inherit; }
+mjx-container[jax="SVG"] svg { vertical-align: middle; }
+mjx-container:focus, mjx-container svg:focus { outline: none; }
 
-.tx sup, .tx sub { font-size: 0.68em; line-height: 0; position: relative; }
-.tx sup { top: -0.5em; }
-.tx sub { bottom: -0.28em; }
+/* Inline maths sits in running prose: keep it from stretching the leading. */
+.math-inline { display: inline-block; line-height: 1; }
+.math-inline mjx-container { margin: 0 !important; }
 
-.tx-frac {
-  display: inline-flex;
-  flex-direction: column;
-  vertical-align: -0.48em;
-  text-align: center;
-  margin: 0 0.22em;
-  font-size: 0.95em;
-}
-.tx-frac .tx-num-part { padding: 0 0.35em 0.1em; border-bottom: 1px solid currentColor; }
-.tx-frac .tx-den { padding: 0.1em 0.35em 0; }
-
-.tx-acc { display: inline-block; position: relative; }
-.tx-overline { border-top: 1px solid currentColor; margin-top: 0.14em; }
-.tx-hat::before, .tx-vec::before, .tx-tilde::before {
-  position: absolute; left: 0; right: 0; top: -0.72em;
-  text-align: center; font-size: 0.8em; line-height: 1;
-}
-.tx-hat::before { content: '^'; }
-.tx-vec::before { content: '→'; }
-.tx-tilde::before { content: '~'; }
-
-/* Dirac slash: a rule drawn through the glyph, not a borrowed character. */
-.tx-slashed { position: relative; display: inline-block; padding: 0 0.06em; }
-.tx-slashed::after {
-  content: '';
-  position: absolute;
-  left: 50%; top: 50%;
-  width: 1.02em; height: 1px;
-  background: currentColor;
-  transform: translate(-50%, -50%) rotate(-62deg);
-}
-
-.tx-sqrt { display: inline-block; }
-.tx-sqrt .tx-radic { padding-right: 0.05em; }
-.tx-sqrt .tx-rad { border-top: 1px solid currentColor; padding: 0.06em 0.15em 0 0.05em; }
-
-.tx-space { display: inline-block; }
-
-/* Display maths. Wrapping is allowed here (inline maths stays nowrap so that
-   things like gamma^mu never break mid-symbol); the <wbr> markers emitted after
-   binary operators decide where a long line gives way. */
-.tx-display {
-  display: block;
-  text-align: center;
-  white-space: normal;
-  font-size: 1.18rem;
-  line-height: 2.5;
-  margin: 0;
-}
-/* Fractions carry their own vertical bulk, so they need room around them and
-   should not be shrunk further in display position. */
-.tx-display .tx-frac { font-size: 1em; vertical-align: -0.52em; margin: 0 0.3em; }
-.tx-display sup { top: -0.62em; }
-.tx-display sub { bottom: -0.3em; }
-
-/* Aligned multi-line display (see texAlign). Three columns — right-aligned
-   left-hand sides, the relation symbol, left-aligned right-hand sides — so the
-   equals signs form a vertical column, which is the whole point. The grid is
-   centred as a block within the formula panel. */
-.tx-align {
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
-  align-items: baseline;
-  justify-content: center;
-  column-gap: 0.45em;
-  row-gap: 0.85em;
-  font-size: 1.18rem;
-  line-height: 2.1;
-  width: max-content;
-  max-width: 100%;
-  margin: 0 auto;
-  /* Override the nowrap inherited from .tx: a long right-hand side must be
-     allowed to break at the <wbr> markers rather than overflow its panel. */
-  white-space: normal;
-}
-.tx-al-lhs { text-align: right; }
-.tx-al-rel { text-align: center; }
-.tx-al-rhs { text-align: left; }
-.tx-al-full { grid-column: 1 / -1; text-align: center; }
-.tx-align .tx-frac { vertical-align: -0.52em; margin: 0 0.3em; }
-.tx-align sup { top: -0.62em; }
-.tx-align sub { bottom: -0.3em; }
+/* Display maths gets its own line, centred, with room to breathe. */
+.math-display { margin: 0; overflow-x: auto; overflow-y: hidden; padding: 0.15rem 0; }
+.math-display mjx-container[display="true"] { margin: 0.55em 0 !important; }
 
 /* A displayed equation is set off from the prose by rules above and below
    rather than by a filled box: lighter on the page, and it prints. */
 .formula-block {
   border-top: 1px solid var(--hair);
   border-bottom: 1px solid var(--hair);
-  padding: 1.5rem 1rem 1.4rem;
+  padding: 1.15rem 1rem 1rem;
   margin: 1.8rem 0;
   overflow-x: auto;
   overflow-y: hidden;
 }
-/* Consecutive equations in one block are separated, not crammed. */
-.formula-block .tx-display + .tx-display { margin-top: 1.1rem; }
-
 .formula-note {
   display: block;
   text-align: center;
@@ -783,13 +707,9 @@ footer {
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--mid);
-  margin-top: 1rem;
+  margin-top: 0.9rem;
   line-height: 1.5;
 }
-
-/* Inline maths inside running prose: nudge the baseline so subscripted symbols
-   do not push the lines apart. */
-.theory-body p .tx { line-height: 1; }
 
 /* ---------- higher orders ---------- */
 

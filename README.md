@@ -261,17 +261,29 @@ assets/js/
 
 ## Typesetting the formulas
 
-Rather than pull in MathJax or KaTeX — each a megabyte-plus dependency, against
-a page that currently ships as a handful of files and fetches nothing — TRACE
-includes a small typesetter for the TeX subset the physics actually needs:
-super- and subscripts, built fractions with a real rule, overlines, Dirac
-slashes, radicals, Greek and the usual operators. It is about 200 lines and
-renders to plain HTML and CSS.
+Formulas are set by **MathJax**, vendored under `assets/vendor/tex-svg.js`.
 
-Unknown commands are rendered visibly rather than silently dropped, so a typo
-shows up as a typo. If the notation ever outgrows this — matrices, alignment,
-big operators with limits — the honest move is to vendor MathJax's single-file
-SVG build, which needs no font files and would keep the page self-contained.
+This replaced a hand-written typesetter. That typesetter produced correct
+markup, but it never looked like TeX, because looking like TeX means TeX's
+metrics: italic corrections, script sizes and shifts, the spacing classes
+between atom types, the Computer Modern glyph shapes. Reimplementing those
+convincingly is a project in itself.
+
+The **SVG** build is used deliberately, rather than MathJax's HTML-CSS output or
+KaTeX: it draws glyphs as vector outlines and therefore needs **no font files**.
+The site remains a set of static files that work from disk, offline, with
+nothing fetched at runtime — the property the project is built around.
+
+The cost is honest and worth stating: `tex-svg.js` is 2.1 MB. It is loaded only
+by `theory.html` and `compute.html`, the two pages that contain formulas; the
+cover does not load it.
+
+Callers only ever hand over LaTeX source, through `assets/js/math.js`:
+
+- `data-tex="..."` — inline
+- `data-tex-align="a \ b"` — display, relation symbols aligned in a column
+  (the `&` alignment markers are inserted automatically)
+- `\slashed{q}` — Feynman slash, defined as a macro since it is not in MathJax
 
 ## Possible directions
 
