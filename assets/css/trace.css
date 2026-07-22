@@ -768,10 +768,23 @@ mjx-container:focus, mjx-container svg:focus { outline: none; }
 .loop-cell { margin: 0; border: 1px solid var(--hair); padding: 0.5rem 0.4rem 0.4rem; text-align: center; }
 .loop-cell canvas { display: block; margin: 0 auto; max-width: 100%; }
 .loop-cell figcaption {
-  font-family: var(--mono);
-  font-size: 0.66rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
   color: var(--mid);
-  margin-top: 0.35rem;
+  margin-top: 0.4rem;
+  min-height: 1.4em;
+}
+.loop-cell figcaption mjx-container { font-size: 88%; color: var(--ink); }
+/* The channel the correction belongs to, set apart from the line names. */
+.chan-tag {
+  font-family: var(--sans);
+  font-size: 0.56rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  border: 1px solid var(--hair);
+  padding: 0.05rem 0.3rem;
 }
 
 .callout {

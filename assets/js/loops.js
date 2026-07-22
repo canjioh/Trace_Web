@@ -35,6 +35,9 @@ function treeLines(diagram) {
     species: PARTICLES[leg.particle].kind,
     vertex: diagram.legsA.includes(leg.idx) ? 'A' : 'B',
     label: `${PARTICLES[leg.particle].label}${SUBS[leg.idx]}`,
+    /* TeX form, so the caption can be typeset rather than approximated with
+       Unicode sub- and superscripts whose metrics do not line up. */
+    tex: `${PARTICLES[leg.particle].tex}_{${leg.idx + 1}}`,
   }));
   lines.push({
     kind: 'internal',
@@ -43,6 +46,9 @@ function treeLines(diagram) {
     species: PARTICLES[diagram.internal].kind,
     vertex: 'AB',
     label: PARTICLES[diagram.internal].label,
+    /* Marked as internal: beside a numbered external leg, a bare symbol reads
+       as a leg whose number went missing. */
+    tex: `${PARTICLES[diagram.internal].tex}_{\\mathrm{int}}`,
   });
   return lines;
 }
@@ -101,6 +107,7 @@ function oneLoopTopologies(diagram) {
         lines: [a, b],
         self: i === j,
         label: i === j ? a.label : `${a.label} · ${b.label}`,
+        tex: i === j ? a.tex : `${a.tex} \\cdot ${b.tex}`,
       });
     }
   }

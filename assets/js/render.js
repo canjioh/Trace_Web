@@ -52,8 +52,9 @@ function setupCanvas(canvas, w, h) {
 const STROKE = {
   line: 1.1,
   loop: 0.95,
-  vertexR: 2.8,
-  arrow: 6.4,
+  vertexR: 2.5,
+  arrow: 5.0,      // fermion-flow arrowhead on a tree line
+  arrowLoop: 4.2,  // on a closed fermion loop, smaller again
 };
 
 /* Straight line with a fermion-flow arrowhead at its midpoint. */
@@ -357,18 +358,10 @@ function drawFermionLoop(ctx, centre, along, radius) {
   /* Arrowheads on the two extremes of the axis perpendicular to the photon,
      pointing in opposite directions along the loop: particle one way round,
      antiparticle the other. */
-  const s = 5.5;
-  ctx.fillStyle = COL.ink;
   for (const sgn of [1, -1]) {
     const px = centre.x + nx * sgn * radius;
     const py = centre.y + ny * sgn * radius;
-    const dx = ux * sgn, dy = uy * sgn; // tangent at that point
-    ctx.beginPath();
-    ctx.moveTo(px + dx * s, py + dy * s);
-    ctx.lineTo(px - dx * s * 0.55 - nx * s * 0.5, py - dy * s * 0.55 - ny * s * 0.5);
-    ctx.lineTo(px - dx * s * 0.55 + nx * s * 0.5, py - dy * s * 0.55 + ny * s * 0.5);
-    ctx.closePath();
-    ctx.fill();
+    drawArrowhead(ctx, px, py, ux * sgn, uy * sgn, STROKE.arrowLoop);
   }
 }
 

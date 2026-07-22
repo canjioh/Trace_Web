@@ -173,7 +173,9 @@ function renderLoops() {
     for (const topo of items) {
       const fig = document.createElement('figure');
       fig.className = 'loop-cell';
-      fig.innerHTML = `<figcaption>${topo.channel} · ${topo.label}</figcaption>`;
+      // The caption names the lines the correction sits on; it is typeset for
+      // the same reason the diagram labels are.
+      fig.innerHTML = `<figcaption><span class="chan-tag">${topo.channel}</span>${tex(topo.tex)}</figcaption>`;
       grid.appendChild(fig);
       const cv = document.createElement('canvas');
       fig.insertBefore(cv, fig.firstChild);
@@ -182,6 +184,7 @@ function renderLoops() {
       renderLoopDiagram(cv, topo, { width: w, height: Math.round(w * 0.72) });
     }
   }
+  typesetMath(host);
 }
 
 /* --- numbers --- */
